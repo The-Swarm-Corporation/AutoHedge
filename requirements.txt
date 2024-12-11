@@ -3,3 +3,4 @@ tickr-agent
 pydantic
 loguru
 swarm-models
+ollama
