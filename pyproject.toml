@@ -28,7 +28,7 @@ tickr-agent="*"
 pydantic = "*"
 loguru = "*"
 swarm-models = "*"
-
+ollama = "*"
 
 [tool.poetry.group.lint.dependencies]
 ruff = "^0.1.6"
