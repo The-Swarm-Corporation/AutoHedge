@@ -134,7 +134,7 @@ class AutoHedgeAPI:
             version="1.0.0",
             description="Production-grade API for automated hedge fund management",
             *args,
-            **kwargs
+            **kwargs,
         )
         self.api_key_header = APIKeyHeader(name="X-API-Key")
         self.users: Dict[str, User] = {}

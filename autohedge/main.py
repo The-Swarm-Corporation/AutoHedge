@@ -1,4 +1,3 @@
-import os
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -6,16 +5,8 @@ from typing import Dict, List, Optional
 
 from loguru import logger
 from pydantic import BaseModel
-from swarm_models import OpenAIChat
 from swarms import Agent, create_file_in_folder
 from tickr_agent.main import TickrAgent
-
-# from autohedge.crypto_agent_wrapper import CryptoAgentWrapper
-
-model = OpenAIChat(
-    model_name="gpt-4o", openai_api_key=os.getenv("OPENAI_API_KEY")
-)
-
 
 # Director Agent - Manages overall strategy and coordinates other agents
 DIRECTOR_PROMPT = """
@@ -115,7 +106,7 @@ class RiskManager:
         self.risk_agent = Agent(
             agent_name="Risk-Manager",
             system_prompt=RISK_PROMPT,
-            llm=model,
+            model_name="groq/deepseek-r1-distill-qwen-32b",
             output_type="str",
             max_loops=1,
             verbose=True,
@@ -166,7 +157,7 @@ class ExecutionAgent:
         self.execution_agent = Agent(
             agent_name="Execution-Agent",
             system_prompt=EXECUTION_PROMPT,
-            llm=model,
+            model_name="groq/deepseek-r1-distill-qwen-32b",
             output_type="str",
             max_loops=1,
             verbose=True,
@@ -218,7 +209,7 @@ class TradingDirector:
         self.director_agent = Agent(
             agent_name="Trading-Director",
             system_prompt=DIRECTOR_PROMPT,
-            llm=model,
+            model_name="groq/deepseek-r1-distill-qwen-32b",
             output_type="str",
             max_loops=1,
             verbose=True,
@@ -324,7 +315,7 @@ class QuantAnalyst:
         self.quant_agent = Agent(
             agent_name="Quant-Analyst",
             system_prompt=QUANT_PROMPT,
-            llm=model,
+            model_name="groq/deepseek-r1-distill-qwen-32b",
             output_type="str",
             max_loops=1,
             verbose=True,
