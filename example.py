@@ -1,8 +1,12 @@
 # Example usage
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from autohedge.main import AutoFund
 
 # Define the stocks to analyze
-stocks = ["NVDA"]
+stocks = ["NVDA", "TSLA", "MSFT", "GOOG"]
 
 # Initialize the trading system with the specified stocks
 trading_system = AutoFund(

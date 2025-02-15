@@ -106,7 +106,7 @@ class RiskManager:
         self.risk_agent = Agent(
             agent_name="Risk-Manager",
             system_prompt=RISK_PROMPT,
-            model_name="groq/deepseek-r1-distill-qwen-32b",
+            model_name="groq/deepseek-r1-distill-llama-70b",
             output_type="str",
             max_loops=1,
             verbose=True,
@@ -157,7 +157,7 @@ class ExecutionAgent:
         self.execution_agent = Agent(
             agent_name="Execution-Agent",
             system_prompt=EXECUTION_PROMPT,
-            model_name="groq/deepseek-r1-distill-qwen-32b",
+            model_name="groq/deepseek-r1-distill-llama-70b",
             output_type="str",
             max_loops=1,
             verbose=True,
@@ -209,7 +209,7 @@ class TradingDirector:
         self.director_agent = Agent(
             agent_name="Trading-Director",
             system_prompt=DIRECTOR_PROMPT,
-            model_name="groq/deepseek-r1-distill-qwen-32b",
+            model_name="groq/deepseek-r1-distill-llama-70b",
             output_type="str",
             max_loops=1,
             verbose=True,
@@ -315,7 +315,7 @@ class QuantAnalyst:
         self.quant_agent = Agent(
             agent_name="Quant-Analyst",
             system_prompt=QUANT_PROMPT,
-            model_name="groq/deepseek-r1-distill-qwen-32b",
+            model_name="groq/deepseek-r1-distill-llama-70b",
             output_type="str",
             max_loops=1,
             verbose=True,
