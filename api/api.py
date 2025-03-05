@@ -18,7 +18,7 @@ from fastapi.security import APIKeyHeader
 from loguru import logger
 from pydantic import BaseModel, EmailStr, Field
 
-from autohedge.main import AutoFund
+from autohedge.main import AutoHedge
 
 
 def log_agent_data(data_dict: dict) -> dict | None:
@@ -256,7 +256,7 @@ class AutoHedgeAPI:
                 trade_id = str(uuid.uuid4())
 
                 try:
-                    trading_system = AutoFund(
+                    trading_system = AutoHedge(
                         name=current_user.fund_name,
                         description=current_user.fund_description
                         or "",

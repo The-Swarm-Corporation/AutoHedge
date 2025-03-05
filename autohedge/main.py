@@ -5,8 +5,10 @@ from typing import Dict, List, Optional
 
 from loguru import logger
 from pydantic import BaseModel
-from swarms import Agent, create_file_in_folder
+from swarms import Agent, create_file_in_folder, Conversation
 from tickr_agent.main import TickrAgent
+
+from swarms_tools.finance.eodh_api import fetch_stock_news
 
 # Director Agent - Manages overall strategy and coordinates other agents
 DIRECTOR_PROMPT = """
@@ -43,6 +45,59 @@ In your analysis, include confidence scores for each aspect of your evaluation, 
 Your comprehensive analysis will be instrumental in refining the trading strategy, ensuring that it is grounded in empirical evidence and statistical rigor. By working together with the Director Agent, you will contribute to a cohesive and data-driven approach to trading, ultimately enhancing the overall performance of the trading system.
 """
 
+SENTIMENT_PROMPT = """
+You are a Financial Sentiment Analysis AI specializing in evaluating market news and social sentiment for stocks and financial instruments.
+
+Your primary responsibilities include:
+
+1. **News Sentiment Analysis**: Analyze financial news articles, press releases, and earnings reports to determine sentiment polarity (positive, negative, neutral) and intensity.
+
+2. **Social Media Monitoring**: Evaluate social media discussions, including Reddit, Twitter, and StockTwits, to gauge retail investor sentiment and identify emerging trends.
+
+3. **Sentiment Metrics Calculation**: Provide quantitative sentiment scores (0-1 scale) with 0 being extremely negative and 1 being extremely positive.
+
+4. **Theme Identification**: Extract key themes and narratives driving sentiment, including product launches, regulatory concerns, competitive dynamics, and macroeconomic factors.
+
+5. **Sentiment Change Detection**: Identify significant shifts in sentiment that could signal changing market perception.
+
+6. **Contrarian Indicator Assessment**: Evaluate when extreme sentiment might represent a contrarian trading opportunity.
+
+For each analysis, you will receive:
+- Stock ticker symbol
+- Collection of recent news articles and social media posts
+- Timeframe for analysis
+
+Your output should include:
+
+1. **Overall Sentiment Score**: A numerical score between 0-1 representing the aggregate sentiment.
+
+2. **Sentiment Breakdown**:
+   - News Sentiment: Analysis of mainstream financial media
+   - Social Sentiment: Analysis of retail investor discussions
+   - Institutional Sentiment: Analysis of analyst reports and institutional commentary
+
+3. **Key Themes**: The primary narratives driving sentiment, both positive and negative.
+
+4. **Critical Events**: Identification of specific news events significantly impacting sentiment.
+
+5. **Sentiment Trend**: Whether sentiment is improving, deteriorating, or stable compared to previous periods.
+
+6. **Trading Implications**: How the current sentiment might impact short and medium-term price action.
+
+7. **Contrarian Signals**: Assessment of whether extreme sentiment readings might indicate potential market reversals.
+
+Your analysis should be data-driven, nuanced, and avoid simplistic conclusions. Recognize that sentiment is just one factor in market dynamics and should be considered alongside technical, fundamental, and macroeconomic factors.
+"""
+
+sentiment_agent = Agent(
+    agent_name="Sentiment-Agent",
+    system_prompt=SENTIMENT_PROMPT,
+    model_name="gpt-4o-mini",
+    output_type="str",
+    max_loops=1,
+    verbose=True,
+    context_length=16000,
+)
 
 class AutoHedgeOutput(BaseModel):
     id: str = uuid.uuid4().hex
@@ -364,7 +419,7 @@ class QuantAnalyst:
             raise
 
 
-class AutoFund:
+class AutoHedge:
     """
     Main trading system that coordinates all agents and manages the trading cycle.
 
@@ -384,9 +439,11 @@ class AutoFund:
         description: str = "fully autonomous hedgefund",
         output_dir: str = "outputs",
         output_file_path: str = None,
+        strategy: str = None,
+        output_type: str = "list",
     ):
         """
-        Initialize the AutoFund class.
+        Initialize the AutoHedge class.
 
         Args:
             stocks (List[str]): List of stock tickers to trade
@@ -400,7 +457,9 @@ class AutoFund:
         self.stocks = stocks
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
-
+        self.strategy = strategy
+        self.output_type = output_type
+        self.output_file_path = output_file_path
         logger.info("Initializing Automated Trading System")
         self.director = TradingDirector(stocks, output_dir)
         self.quant = QuantAnalyst()
@@ -413,6 +472,7 @@ class AutoFund:
             task="",
             logs=[],
         )
+        self.conversation = Conversation(time_enabled=True)
 
     def run(self, task: str, *args, **kwargs):
         """
@@ -427,6 +487,10 @@ class AutoFund:
             List: List of logs for each stock.
         """
         logger.info("Starting trading cycle")
+        self.conversation.add(
+            role="user",
+            content=f"Task: {task}"
+        )
 
         try:
             for stock in self.stocks:
@@ -436,20 +500,50 @@ class AutoFund:
                 thesis, market_data = self.director.generate_thesis(
                     task=task, stock=stock
                 )
+                
+                self.conversation.add_message(
+                    role=self.director.agent_name,
+                    content=f"Stock: {stock}\nMarket Data: {market_data}\nThesis: {thesis}"
+                )
 
                 # Perform analysis
                 analysis = self.quant.analyze(
                     stock + market_data, thesis
+                )
+                
+                
+                # setiment_analysis = sentiment_agent.run(
+                #     fetch_stock_news(stock)
+                # )
+                
+                # logger.info(f"Sentiment Analysis: {setiment_analysis}")
+                
+                # self.conversation.add(sentiment_agent.agent_name, setiment_analysis)
+                
+                
+                self.conversation.add(
+                    role=self.quant.agent_name,
+                    content=analysis
                 )
 
                 # Assess risk
                 risk_assessment = self.risk.assess_risk(
                     stock + market_data, thesis, analysis
                 )
+                
+                self.conversation.add(
+                    role=self.risk.agent_name,
+                    content=risk_assessment
+                )
 
                 # # Generate order if approved
                 order = self.execution.generate_order(
                     stock, thesis, risk_assessment
+                )
+                
+                self.conversation.add(
+                    role=self.execution.agent_name,
+                    content=order
                 )
 
                 order = str(order)
@@ -458,27 +552,38 @@ class AutoFund:
                 decision = self.director.make_decision(
                     order + market_data + risk_assessment, thesis
                 )
-
-                log = AutoHedgeOutput(
-                    thesis=thesis,
-                    risk_assessment=risk_assessment,
-                    current_stock=stock,
-                    order=order,
-                    decision=decision,
+                
+                self.conversation.add(
+                    role=self.director.agent_name,
+                    content=decision
                 )
 
-                # logs.append(log.model_dump_json(indent=4))
-                self.logs.task = task
-                self.logs.logs.append(log)
+            #     log = AutoHedgeOutput(
+            #         thesis=thesis,
+            #         risk_assessment=risk_assessment,
+            #         current_stock=stock,
+            #         order=order,
+            #         decision=decision,
+            #     )
 
-            create_file_in_folder(
-                self.output_dir,
-                f"analysis-{uuid.uuid4().hex}.json",
-                self.logs.model_dump_json(indent=4),
-            )
+            #     # logs.append(log.model_dump_json(indent=4))
+            #     self.logs.task = task
+            #     self.logs.logs.append(log)
 
-            return self.logs.model_dump_json(indent=4)
+            # create_file_in_folder(
+            #     self.output_dir,
+            #     f"analysis-{uuid.uuid4().hex}.json",
+            #     self.logs.model_dump_json(indent=4),
+            # )
 
+            # return self.logs.model_dump_json(indent=4)
+            if self.output_type == "list":
+                return self.conversation.return_messages_as_list()
+            elif self.output_type == "dict":
+                return self.conversation.return_messages_as_dictionary()
+            elif self.output_type == "str":
+                return self.conversation.return_history_as_string()
+                
         except Exception as e:
             logger.error(f"Error in trading cycle: {str(e)}")
             raise

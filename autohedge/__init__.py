@@ -1,3 +1,3 @@
-from autohedge.main import AutoFund
+from autohedge.main import AutoHedge
 
-__all__ = ["AutoFund"]
+__all__ = ["AutoHedge"]

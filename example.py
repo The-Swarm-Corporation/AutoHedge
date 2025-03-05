@@ -1,15 +1,14 @@
-# Example usage
 from dotenv import load_dotenv
+from autohedge.main import AutoHedge
 
 load_dotenv()
 
-from autohedge.main import AutoFund
 
 # Define the stocks to analyze
 stocks = ["NVDA", "TSLA", "MSFT", "GOOG"]
 
 # Initialize the trading system with the specified stocks
-trading_system = AutoFund(
+trading_system = AutoHedge(
     name="swarms-fund",
     description="Private Hedge Fund for Swarms Corp",
     stocks=stocks,
