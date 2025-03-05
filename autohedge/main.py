@@ -5,10 +5,9 @@ from typing import Dict, List, Optional
 
 from loguru import logger
 from pydantic import BaseModel
-from swarms import Agent, create_file_in_folder, Conversation
+from swarms import Agent, Conversation
 from tickr_agent.main import TickrAgent
 
-from swarms_tools.finance.eodh_api import fetch_stock_news
 
 # Director Agent - Manages overall strategy and coordinates other agents
 DIRECTOR_PROMPT = """
@@ -98,6 +97,7 @@ sentiment_agent = Agent(
     verbose=True,
     context_length=16000,
 )
+
 
 class AutoHedgeOutput(BaseModel):
     id: str = uuid.uuid4().hex
@@ -487,10 +487,7 @@ class AutoHedge:
             List: List of logs for each stock.
         """
         logger.info("Starting trading cycle")
-        self.conversation.add(
-            role="user",
-            content=f"Task: {task}"
-        )
+        self.conversation.add(role="user", content=f"Task: {task}")
 
         try:
             for stock in self.stocks:
@@ -500,50 +497,45 @@ class AutoHedge:
                 thesis, market_data = self.director.generate_thesis(
                     task=task, stock=stock
                 )
-                
+
                 self.conversation.add_message(
                     role=self.director.agent_name,
-                    content=f"Stock: {stock}\nMarket Data: {market_data}\nThesis: {thesis}"
+                    content=f"Stock: {stock}\nMarket Data: {market_data}\nThesis: {thesis}",
                 )
 
                 # Perform analysis
                 analysis = self.quant.analyze(
                     stock + market_data, thesis
                 )
-                
-                
+
                 # setiment_analysis = sentiment_agent.run(
                 #     fetch_stock_news(stock)
                 # )
-                
+
                 # logger.info(f"Sentiment Analysis: {setiment_analysis}")
-                
+
                 # self.conversation.add(sentiment_agent.agent_name, setiment_analysis)
-                
-                
+
                 self.conversation.add(
-                    role=self.quant.agent_name,
-                    content=analysis
+                    role=self.quant.agent_name, content=analysis
                 )
 
                 # Assess risk
                 risk_assessment = self.risk.assess_risk(
                     stock + market_data, thesis, analysis
                 )
-                
+
                 self.conversation.add(
-                    role=self.risk.agent_name,
-                    content=risk_assessment
+                    role=self.risk.agent_name, content=risk_assessment
                 )
 
                 # # Generate order if approved
                 order = self.execution.generate_order(
                     stock, thesis, risk_assessment
                 )
-                
+
                 self.conversation.add(
-                    role=self.execution.agent_name,
-                    content=order
+                    role=self.execution.agent_name, content=order
                 )
 
                 order = str(order)
@@ -552,10 +544,9 @@ class AutoHedge:
                 decision = self.director.make_decision(
                     order + market_data + risk_assessment, thesis
                 )
-                
+
                 self.conversation.add(
-                    role=self.director.agent_name,
-                    content=decision
+                    role=self.director.agent_name, content=decision
                 )
 
             #     log = AutoHedgeOutput(
@@ -580,10 +571,12 @@ class AutoHedge:
             if self.output_type == "list":
                 return self.conversation.return_messages_as_list()
             elif self.output_type == "dict":
-                return self.conversation.return_messages_as_dictionary()
+                return (
+                    self.conversation.return_messages_as_dictionary()
+                )
             elif self.output_type == "str":
                 return self.conversation.return_history_as_string()
-                
+
         except Exception as e:
             logger.error(f"Error in trading cycle: {str(e)}")
             raise
