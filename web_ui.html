@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoHedge - AI Trading System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .stock-input-help {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .results h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .result-item pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #444;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #f44;
+            color: #c33;
+        }
+
+        .connection-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 AutoHedge</h1>
+        <p class="subtitle">AI-Powered Autonomous Trading System</p>
+
+        <div id="connectionStatus" class="connection-status status-disconnected">
+            Checking connection...
+        </div>
+
+        <form id="analysisForm">
+            <div class="form-group">
+                <label for="stocks">Stock Symbols</label>
+                <input
+                    type="text"
+                    id="stocks"
+                    placeholder="e.g., NVDA, AAPL, TSLA, MSFT"
+                    required
+                >
+                <div class="stock-input-help">
+                    Enter one or more stock symbols separated by commas
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="task">Analysis Task</label>
+                <textarea
+                    id="task"
+                    placeholder="e.g., Analyze these stocks for a $100,000 portfolio with balanced risk"
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="allocation">Allocation Amount ($)</label>
+                <input
+                    type="text"
+                    id="allocation"
+                    placeholder="e.g., 100000"
+                    required
+                >
+            </div>
+
+            <button type="submit" id="submitBtn">Analyze Stocks</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing stocks with AI agents... This may take a minute.</p>
+        </div>
+
+        <div class="results" id="results">
+            <h2>Analysis Results</h2>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let apiKey = null;
+
+        // Check API connection on load
+        async function checkConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            try {
+                const response = await fetch(`${API_URL}/docs`);
+                if (response.ok) {
+                    statusDiv.textContent = 'API Connected';
+                    statusDiv.className = 'connection-status status-connected';
+                } else {
+                    throw new Error('API not responding');
+                }
+            } catch (error) {
+                statusDiv.textContent = 'API Disconnected - Please start the API server';
+                statusDiv.className = 'connection-status status-disconnected';
+            }
+        }
+
+        // Create user and get API key
+        async function getApiKey() {
+            if (apiKey) return apiKey;
+
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: `user_${Date.now()}`,
+                        email: `user${Date.now()}@autohedge.local`,
+                        fund_name: 'Personal Trading Fund',
+                        fund_description: 'AI-powered trading analysis'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create user');
+                }
+
+                const data = await response.json();
+                apiKey = data.api_key;
+                return apiKey;
+            } catch (error) {
+                console.error('Error getting API key:', error);
+                throw error;
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const stocksInput = document.getElementById('stocks').value;
+            const task = document.getElementById('task').value;
+            const allocation = parseFloat(document.getElementById('allocation').value);
+
+            // Parse stocks
+            const stocks = stocksInput.split(',').map(s => s.trim().toUpperCase()).filter(s => s);
+
+            if (stocks.length === 0) {
+                alert('Please enter at least one stock symbol');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('submitBtn').disabled = true;
+
+            try {
+                // Get API key
+                const key = await getApiKey();
+
+                // Create trade
+                const response = await fetch(`${API_URL}/trades`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': key
+                    },
+                    body: JSON.stringify({
+                        stocks: stocks,
+                        task: task,
+                        allocation: allocation,
+                        strategy_type: 'balanced',
+                        risk_level: 5
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Analysis failed');
+                }
+
+                const result = await response.json();
+                displayResults(result);
+
+            } catch (error) {
+                displayError(error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+
+        // Display results
+        function displayResults(result) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('resultsContent');
+
+            let html = '';
+
+            if (result.result && Array.isArray(result.result)) {
+                result.result.forEach((message, index) => {
+                    html += `
+                        <div class="result-item">
+                            <h3>${message.role || 'Agent'}</h3>
+                            <pre>${message.content || JSON.stringify(message, null, 2)}</pre>
+                        </div>
+                    `;
+                });
+            } else {
+                html = `
+                    <div class="result-item">
+                        <h3>Analysis Complete</h3>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </div>
+                `;
+            }
+
+            contentDiv.innerHTML = html;
+            resultsDiv.classList.add('active');
+        }
+
+        // Display error
+        function displayError(message) {
+            const resultsDiv = document.getElementById('results');
+            const contentDiv = document.getElementById('resultsContent');
+
+            contentDiv.innerHTML = `
+                <div class="result-item error">
+                    <h3>Error</h3>
+                    <pre>${message}</pre>
+                </div>
+            `;
+
+            resultsDiv.classList.add('active');
+        }
+
+        // Check connection on load
+        checkConnection();
+
+        // Set default values for demo
+        document.getElementById('stocks').value = 'NVDA';
+        document.getElementById('task').value = 'Analyze NVDA for a balanced portfolio with moderate risk tolerance';
+        document.getElementById('allocation').value = '50000';
+    </script>
+</body>
+</html>

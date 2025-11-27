@@ -3,6 +3,7 @@ tickr-agent
 pydantic
 loguru
 swarm-models
-fastapi 
-uvicorn 
-requests 
+fastapi
+uvicorn
+requests
+python-dotenv 
