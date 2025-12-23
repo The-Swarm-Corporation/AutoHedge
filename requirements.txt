@@ -1,8 +1,11 @@
-swarms
+google-generativeai>=0.8.3
+pydantic>=2.0
+swarms>=2.27.3
+swarm-models>=0.2.6
 tickr-agent
-pydantic
 loguru
-swarm-models
-fastapi 
-uvicorn 
-requests 
+python-dotenv
+fastapi
+uvicorn
+requests
+langchain-community

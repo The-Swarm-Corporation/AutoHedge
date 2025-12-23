@@ -1,6 +1,7 @@
 import os
 
-from swarm_models import OpenAIChat
+import google.generativeai as genai
+from google.generativeai.types import GenerationConfig
 from swarms import Agent
 
 from cryptoagent.main import CryptoAgent
@@ -9,11 +10,20 @@ from cryptoagent.prompts import CRYPTO_AGENT_SYS_PROMPT
 
 class CryptoAgentWrapper:
     def __init__(self):
-        self.api_key = os.getenv("OPENAI_API_KEY")
-        self.model = OpenAIChat(
-            openai_api_key=self.api_key,
-            model_name="gpt-4o-mini",
-            temperature=0.1,
+        self.api_key = os.getenv("GOOGLE_API_KEY")
+        genai.configure(api_key=self.api_key)
+
+        safety_settings = [
+            {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+            {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
+        ]
+
+        self.model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            generation_config=GenerationConfig(temperature=0.1),
+            safety_settings=safety_settings,
         )
         self.input_agent = Agent(
             agent_name="Crypto-Analysis-Agent",
@@ -27,7 +37,6 @@ class CryptoAgentWrapper:
             saved_state_path="crypto_agent.json",
             user_name="swarms_corp",
             retry_attempts=1,
-            context_length=10000,
         )
         self.crypto_analyzer = CryptoAgent(
             agent=self.input_agent, autosave=True

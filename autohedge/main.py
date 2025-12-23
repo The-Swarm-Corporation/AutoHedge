@@ -2,11 +2,59 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+import os
 
 from loguru import logger
 from pydantic import BaseModel
 from swarms import Agent, Conversation
-from tickr_agent.main import TickrAgent
+import google.generativeai as genai # Direct import for google.generativeai
+from google.generativeai.types import GenerationConfig # For safety settings
+from autohedge.tools.mock_tickr_agent import MockTickrAgent
+
+
+# --- LLM Configuration ---
+# Configure genai with API key globally
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+# Safety settings for Gemini models
+safety_settings = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"},
+]
+
+class GeminiAdapter:
+    """
+    Adapter class to make google.generativeai.GenerativeModel compatible with swarms.Agent.
+    swarms.Agent expects the LLM object to have a .run() method.
+    """
+    def __init__(self, model: genai.GenerativeModel):
+        self.model = model
+
+    def run(self, task: str) -> str:
+        # GenerativeModel.generate_content expects a string or a list of parts
+        response = self.model.generate_content(task)
+        # Check if response.text exists and is not empty, otherwise return a default or raise an error
+        return response.text if response.text else "No response generated."
+
+# Model "Thinking" for Strategic and Quantitative Analysis
+llm_pro = GeminiAdapter(
+    genai.GenerativeModel(
+        model_name="models/gemini-2.5-pro", # Updated model name
+        generation_config=genai.types.GenerationConfig(temperature=0.4),
+        safety_settings=safety_settings,
+    )
+)
+
+# Model "Fast" for Risk Management, Sentiment, and Execution
+llm_flash = GeminiAdapter(
+    genai.GenerativeModel(
+        model_name="models/gemini-2.5-flash", # Updated model name
+        generation_config=genai.types.GenerationConfig(temperature=0.1),
+        safety_settings=safety_settings,
+    )
+)
 
 
 # Director Agent - Manages overall strategy and coordinates other agents
@@ -91,11 +139,10 @@ Your analysis should be data-driven, nuanced, and avoid simplistic conclusions. 
 sentiment_agent = Agent(
     agent_name="Sentiment-Agent",
     system_prompt=SENTIMENT_PROMPT,
-    model_name="gpt-4o-mini",
+    llm=llm_flash,
     output_type="str",
     max_loops=1,
     verbose=True,
-    context_length=16000,
 )
 
 
@@ -152,20 +199,20 @@ Using this information, please provide clear risk metrics and trade size recomme
 - A market risk exposure assessment to identify potential risks and opportunities
 - An overall risk score to summarize the trade's potential risks and rewards
 
-Your output should be in a structured format, including all relevant metrics and recommendations.
+Your output MUST be in a structured JSON format. Do not include any markdown formatting like ```json ... ```. Output raw JSON only.
 """
 
 
 class RiskManager:
-    def __init__(self):
+    def __init__(self, agent_name: str = "Risk-Manager"):
+        self.agent_name = agent_name # Store agent_name
         self.risk_agent = Agent(
-            agent_name="Risk-Manager",
+            agent_name=self.agent_name,
             system_prompt=RISK_PROMPT,
-            model_name="groq/deepseek-r1-distill-llama-70b",
+            llm=llm_flash,
             output_type="str",
             max_loops=1,
             verbose=True,
-            context_length=16000,
         )
 
     def assess_risk(
@@ -203,20 +250,20 @@ To execute trades effectively, provide exact trade execution details in a struct
 * Time constraints (start and end dates, time in force)
 * Any additional instructions or special requirements
 
-By following these guidelines, you will ensure that trades are executed efficiently, minimizing potential losses and maximizing profit opportunities.
+Your output MUST be in a structured JSON format. Do not include any markdown formatting like ```json ... ```. Output raw JSON only.
 """
 
 
 class ExecutionAgent:
-    def __init__(self):
+    def __init__(self, agent_name: str = "Execution-Agent"):
+        self.agent_name = agent_name # Store agent_name
         self.execution_agent = Agent(
-            agent_name="Execution-Agent",
+            agent_name=self.agent_name,
             system_prompt=EXECUTION_PROMPT,
-            model_name="groq/deepseek-r1-distill-llama-70b",
+            llm=llm_flash,
             output_type="str",
             max_loops=1,
             verbose=True,
-            context_length=16000,
         )
 
     def generate_order(
@@ -245,7 +292,7 @@ class TradingDirector:
 
     Attributes:
         director_agent (Agent): Swarms agent for thesis generation
-        tickr (TickrAgent): Agent for market data collection
+        tickr (MockTickrAgent): Mock Agent for market data collection
         output_dir (Path): Directory for storing outputs
 
     Methods:
@@ -258,17 +305,18 @@ class TradingDirector:
         stocks: List[str],
         output_dir: str = "outputs",
         cryptos: List[str] = None,
+        agent_name: str = "Trading-Director" # Added agent_name parameter
     ):
 
         logger.info("Initializing Trading Director")
+        self.agent_name = agent_name # Store agent_name
         self.director_agent = Agent(
-            agent_name="Trading-Director",
+            agent_name=self.agent_name,
             system_prompt=DIRECTOR_PROMPT,
-            model_name="groq/deepseek-r1-distill-llama-70b",
+            llm=llm_pro,
             output_type="str",
             max_loops=1,
             verbose=True,
-            context_length=16000,
         )
 
         # self.crypto_agent = CryptoAgentWrapper()
@@ -290,18 +338,17 @@ class TradingDirector:
         """
         logger.info(f"Generating thesis for {stock}")
 
-        self.tickr = TickrAgent(
+        self.tickr = MockTickrAgent( # Changed to MockTickrAgent
             stocks=[stock],
-            max_loops=1,
-            workers=10,
-            retry_attempts=1,
-            context_length=16000,
         )
 
         try:
-            market_data = self.tickr.run(
+            # MockTickrAgent.run returns List[IndividualTickrAgentOutput]
+            mock_results = self.tickr.run(
                 f"{task} Analyze current market conditions and key metrics for {stock}"
             )
+            # Convert to a single string for compatibility with existing prompt
+            market_data = "\n".join([f"{res.ticker}: {res.market_data}" for res in mock_results])
 
             prompt = f"""
             Task: {task}
@@ -362,19 +409,19 @@ class QuantAnalyst:
         output_dir (Path): Directory for storing outputs
     """
 
-    def __init__(self, output_dir: str = "outputs"):
+    def __init__(self, output_dir: str = "outputs", agent_name: str = "Quant-Analyst"):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
 
         logger.info("Initializing Quant Analyst")
+        self.agent_name = agent_name # Store agent_name
         self.quant_agent = Agent(
-            agent_name="Quant-Analyst",
+            agent_name=self.agent_name,
             system_prompt=QUANT_PROMPT,
-            model_name="groq/deepseek-r1-distill-llama-70b",
+            llm=llm_pro,
             output_type="str",
             max_loops=1,
             verbose=True,
-            context_length=16000,
         )
 
     def analyze(self, stock: str, thesis: str) -> str:
@@ -461,10 +508,10 @@ class AutoHedge:
         self.output_type = output_type
         self.output_file_path = output_file_path
         logger.info("Initializing Automated Trading System")
-        self.director = TradingDirector(stocks, output_dir)
-        self.quant = QuantAnalyst()
-        self.risk = RiskManager()
-        self.execution = ExecutionAgent()
+        self.director = TradingDirector(stocks, output_dir, agent_name="Trading-Director")
+        self.quant = QuantAnalyst(agent_name="Quant-Analyst")
+        self.risk = RiskManager(agent_name="Risk-Manager")
+        self.execution = ExecutionAgent(agent_name="Execution-Agent")
         self.logs = AutoHedgeOutputMain(
             name=self.name,
             description=self.description,
@@ -498,7 +545,7 @@ class AutoHedge:
                     task=task, stock=stock
                 )
 
-                self.conversation.add_message(
+                self.conversation.add(
                     role=self.director.agent_name,
                     content=f"Stock: {stock}\nMarket Data: {market_data}\nThesis: {thesis}",
                 )

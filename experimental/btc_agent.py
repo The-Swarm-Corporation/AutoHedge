@@ -1,6 +1,7 @@
 import os
 from loguru import logger
-from swarm_models import OpenAIChat
+import google.generativeai as genai
+from google.generativeai.types import GenerationConfig
 from swarms import Agent
 from typing import Dict, Any
 import websocket
@@ -10,8 +11,20 @@ import threading
 import signal
 import sys
 
-model = OpenAIChat(
-    model_name="gpt-4o", openai_api_key=os.getenv("OPENAI_API_KEY")
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+safety_settings = [
+    {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_ONLY_HIGH"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_ONLY_HIGH"},
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_ONLY_HIGH"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_ONLY_HIGH"}
+]
+
+# Use Google Gemini for analysis
+model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=GenerationConfig(temperature=0.1),
+    safety_settings=safety_settings,
 )
 
 
@@ -48,7 +61,6 @@ class BTCTransactionMonitor:
             dynamic_temperature_enabled=True,
             saved_state_path="btc_agent_state.json",
             retry_attempts=3,
-            context_length=4000,
         )
 
         self.running = False

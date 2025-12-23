@@ -1,0 +1,123 @@
+ROADMAP DI MIGRAZIONE: TICKR AGENT (DA OPENAI A GOOGLE GEMINI)
+================================================================
+
+FASE 1: RISOLUZIONE "DEPENDENCY HELL" E INSTALLAZIONE
+----------------------------------------------------------------
+Questa è la fase più critica. Se fallisce qui, il codice non girerà a causa 
+dell'incompatibilità tra Pydantic V1 (usato da vecchie librerie) e V2 
+(richiesto da Swarms/Gemini).
+
+1. PULIZIA E DEFINIZIONE REQUIREMENTS
+   - Aprire il file requirements.txt.
+   - Rimuovere: openai, swarm-models (vecchie versioni), pydantic (se non versionato).
+   - Inserire le seguenti dipendenze target per forzare la compatibilità:
+
+   google-generativeai>=0.8.3  # SDK Google aggiornato
+   pydantic>=2.0               # Necessario per Swarms moderno
+   swarms>=2.27.3              # Framework aggiornato
+   swarm-models>=0.2.6         # Modelli Swarm compatibili
+   tickr-agent                 # La libreria problematica
+   loguru
+   python-dotenv
+
+2. INSTALLAZIONE STRATEGICA
+   - Eseguire nel terminale: 
+     pip install --no-cache-dir -r requirements.txt
+
+3. CHECKPOINT CRITICO
+   Se l'installazione fallisce o se, lanciando un semplice "import tickr_agent", 
+   ottieni errori legati a Pydantic (es. ImportError: cannot import name 'BaseSettings'), 
+   dovrai intervenire manualmente:
+
+   - PIANO A (Patching): Se l'errore è lieve, usare uno script di "monkey-patching" all'avvio.
+   - PIANO B (Forking): Forkare tickr-agent, aggiornare i suoi import per Pydantic V2 
+     e installare la tua versione forkata nel requirements.txt 
+     (es. git+https://github.com/TUO_USER/tickr-agent.git).
+
+
+FASE 2: GESTIONE SICUREZZA E CREDENZIALI
+----------------------------------------------------------------
+Passaggio dalle API Key OpenAI a Google AI Studio.
+
+1. CONFIGURAZIONE SECRETS
+   - Rinominare .env.example in .env
+   - Rimuovere la riga OPENAI_API_KEY.
+   - Inserire la nuova chiave generata su Google AI Studio:
+
+   GOOGLE_API_KEY=AIzaSy...
+   # WORKSPACE_DIR="agent_workspace" # Opzionale per la memoria
+
+2. VERIFICA GITIGNORE
+   - Verificare che .env sia inserito nel .gitignore per non committare le chiavi.
+
+
+FASE 3: REFACTORING "OPEN HEART" (CORE MIGRATION)
+----------------------------------------------------------------
+Sostituzione del motore cognitivo nel file principale "autohedge/main.py" 
+implementando l'architettura a doppia velocità.
+
+1. IMPORTAZIONE NUOVI MODULI
+   - Rimuovere: from swarm_models import OpenAIChat
+   - Aggiungere: from swarm_models import GoogleGemini
+
+2. ISTANZIAZIONE MODELLI (STRATEGIA "TWO-SPEED")
+   Invece di un singolo modello, configurare due istanze per ottimizzare costi e latenza:
+
+   # Modello "Thinking" per Analisi Strategica e Quantitativa
+   llm_pro = GoogleGemini(
+       model_name="gemini-1.5-pro",
+       api_key=os.getenv("GOOGLE_API_KEY"),
+       temperature=0.4
+   )
+
+   # Modello "Fast" per Risk Management, Sentiment ed Execution
+   llm_flash = GoogleGemini(
+       model_name="gemini-1.5-flash",
+       api_key=os.getenv("GOOGLE_API_KEY"),
+       temperature=0.1
+   )
+
+3. RIASSEGNAZIONE AGENTI
+   Aggiornare la creazione degli Agent passando l'istanza corretta:
+   - TradingDirector -> usa llm_pro (Necessita contesto ampio per le news).
+   - QuantAnalyst    -> usa llm_pro (Ragionamento complesso).
+   - RiskManager     -> usa llm_flash (Velocità e controlli rigidi).
+   - ExecutionAgent  -> usa llm_flash (Formattazione rapida JSON).
+
+4. CONFIGURAZIONE SAFETY SETTINGS
+   Impostare i filtri di sicurezza su BLOCK_ONLY_HIGH nelle istanze Gemini. 
+   Fondamentale per evitare che termini finanziari (es. "panic selling") 
+   attivino falsi positivi.
+
+
+FASE 4: PROMPT ENGINEERING & GUARDRAILS JSON
+----------------------------------------------------------------
+Adattamento dei prompt per compensare la verbosità di Gemini rispetto a GPT-4.
+
+1. INDURIMENTO DEI PROMPT (RISK & EXECUTION)
+   - Modificare RISK_PROMPT e EXECUTION_PROMPT in main.py.
+   - Aggiungere istruzioni esplicite per il formato JSON:
+     "Do not include any markdown formatting like json ... . Output raw JSON only."
+
+2. PULIZIA FILE SPERIMENTALI
+   - Applicare le sostituzioni (OpenAI -> Gemini) anche ai file:
+     experimental/btc_agent.py 
+     crypto_agent_wrapper.py
+
+
+FASE 5: VALIDAZIONE E TEST (PAPER TRADING)
+----------------------------------------------------------------
+
+1. SCRIPT DI TEST END-TO-END
+   - Creare tests/test_gemini_migration.py.
+   - Eseguire un ciclo completo su un ticker liquido (es. "AAPL") per verificare:
+     a) Nessun crash all'avvio (Pydantic OK).
+     b) L'output finale è un JSON valido e non testo discorsivo.
+     c) I tempi di risposta sono accettabili.
+
+2. COMMIT E PUSH
+   Una volta verificato il funzionamento:
+   
+   git add .
+   git commit -m "Refactor: Migrazione completa a Google Gemini e fix dipendenze Pydantic"
+   git push origin feature/gemini-migration
