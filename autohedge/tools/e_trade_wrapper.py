@@ -74,7 +74,9 @@ class ETradeClient:
         url = f"{self.BASE_URL}/accounts/{account_id}/orders/place"
         order_payload = {
             "orderType": "LIMIT" if price else "MARKET",
-            "clientOrderId": "12345",  # Replace with dynamic unique ID in production
+            "clientOrderId": (
+                "12345"
+            ),  # Replace with dynamic unique ID in production
             "orderAction": action.upper(),
             "instrument": [
                 {

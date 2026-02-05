@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from swarms import Agent, Conversation
 from tickr_agent.main import TickrAgent
 
-
 # Director Agent - Manages overall strategy and coordinates other agents
 DIRECTOR_PROMPT = """
 You are a Trading Director AI, responsible for orchestrating the trading process. 
