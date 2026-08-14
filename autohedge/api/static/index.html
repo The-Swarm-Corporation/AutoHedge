@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoHedge Autonomous Trading</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+        }
+
+        .card {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        textarea {
+            width: 100%;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-color);
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            align-self: flex-end;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        button:disabled {
+            background-color: var(--border-color);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .status-banner {
+            display: none;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .status-running {
+            display: block;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .status-error {
+            display: block;
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        .status-success {
+            display: block;
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid currentColor;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .result-item {
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-role {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-content {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+
+        details {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #0b1120;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-muted);
+            outline: none;
+        }
+        
+        summary:hover {
+            color: var(--text-color);
+        }
+
+        pre {
+            margin: 1rem 0 0 0;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+            overflow-x: auto;
+            font-size: 0.85rem;
+            color: #a78bfa;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>AutoHedge</h1>
+            <p class="subtitle">Autonomous AI Hedge Fund</p>
+        </header>
+
+        <div class="card">
+            <form id="task-form" class="form-group">
+                <label for="task-input">Analysis Task</label>
+                <textarea id="task-input" placeholder="e.g., Analyze NVDA and decide if we should allocate 50k..." required></textarea>
+                <button type="submit" id="submit-btn">Run Analysis</button>
+            </form>
+        </div>
+
+        <div id="status-container" class="status-banner"></div>
+
+        <div id="result-container" class="result-section">
+            <h2 style="margin-top: 0; font-size: 1.5rem;">Analysis Results</h2>
+            <div id="result-list"></div>
+            
+            <details>
+                <summary>View Raw JSON</summary>
+                <pre id="raw-json"></pre>
+            </details>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('task-form');
+        const input = document.getElementById('task-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const statusContainer = document.getElementById('status-container');
+        const resultContainer = document.getElementById('result-container');
+        const resultList = document.getElementById('result-list');
+        const rawJson = document.getElementById('raw-json');
+
+        let isPolling = false;
+        let pollTimeout = null;
+
+        function setStatus(type, message) {
+            statusContainer.className = `status-banner status-${type}`;
+            if (type === 'running') {
+                statusContainer.innerHTML = `<span class="loader"></span> ${message}`;
+            } else {
+                statusContainer.textContent = message;
+            }
+        }
+
+        function renderResult(data) {
+            resultList.innerHTML = '';
+            
+            if (Array.isArray(data.result)) {
+                data.result.forEach(item => {
+                    if (item.role && item.content) {
+                        const div = document.createElement('div');
+                        div.className = 'result-item';
+                        
+                        const roleDiv = document.createElement('div');
+                        roleDiv.className = 'result-role';
+                        roleDiv.textContent = item.role;
+                        
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'result-content';
+                        contentDiv.textContent = item.content;
+                        
+                        div.appendChild(roleDiv);
+                        div.appendChild(contentDiv);
+                        resultList.appendChild(div);
+                    }
+                });
+            } else {
+                const div = document.createElement('div');
+                div.className = 'result-item';
+                div.textContent = typeof data.result === 'string' ? data.result : JSON.stringify(data.result);
+                resultList.appendChild(div);
+            }
+            
+            rawJson.textContent = JSON.stringify(data, null, 2);
+            resultContainer.style.display = 'block';
+        }
+
+        async function pollJob(jobId, startTime) {
+            if (!isPolling) return;
+            
+            // Timeout after 15 minutes
+            if (Date.now() - startTime > 15 * 60 * 1000) {
+                isPolling = false;
+                setStatus('error', 'Job timed out after 15 minutes.');
+                submitBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/analyze/${jobId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.status === 'completed') {
+                    isPolling = false;
+                    setStatus('success', 'Analysis completed successfully.');
+                    renderResult(data);
+                    submitBtn.disabled = false;
+                } else if (data.status === 'failed') {
+                    isPolling = false;
+                    setStatus('error', `Analysis failed: ${data.error || 'Unknown error'}`);
+                    submitBtn.disabled = false;
+                } else {
+                    // Still running or pending
+                    pollTimeout = setTimeout(() => pollJob(jobId, startTime), 2000);
+                }
+            } catch (error) {
+                isPolling = false;
+                setStatus('error', `Network or polling error: ${error.message}`);
+                submitBtn.disabled = false;
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const task = input.value.trim();
+            if (!task) return;
+
+            // Reset UI
+            submitBtn.disabled = true;
+            resultContainer.style.display = 'none';
+            if (pollTimeout) clearTimeout(pollTimeout);
+            
+            setStatus('running', 'Submitting analysis task...');
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ task })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || errData.error || `HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (!data.job_id) {
+                    throw new Error('No job ID returned from server.');
+                }
+
+                setStatus('running', 'Analysis running in background. This may take a few minutes...');
+                isPolling = true;
+                pollJob(data.job_id, Date.now());
+
+            } catch (error) {
+                setStatus('error', `Submission failed: ${error.message}`);
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

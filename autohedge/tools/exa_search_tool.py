@@ -1,8 +1,8 @@
+import json
 import os
 
 import httpx
 from loguru import logger
-from swarms.utils.any_to_str import any_to_str
 
 
 def exa_search(
@@ -62,7 +62,7 @@ def exa_search(
         "type": "auto",
         "numResults": sources,
         "contents": {
-            "text": True,
+            "text": False,
             "summary": {
                 "schema": {
                     "type": "object",
@@ -97,8 +97,13 @@ def exa_search(
         response.raise_for_status()
         json_data = response.json()
 
-        return any_to_str(json_data)
+        return json.dumps(json_data, indent=2)
 
     except Exception as e:
         logger.error(f"Exa search failed: {e}")
-        return f"Search failed: {str(e)}. Please try again."
+        error_resp = {
+            "status": "error",
+            "provider": "exa",
+            "error": str(e)
+        }
+        return json.dumps(error_resp, indent=2)
