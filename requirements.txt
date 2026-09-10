@@ -7,3 +7,4 @@ uvicorn
 requests
 httpx
 solders
+psutil>=5.9

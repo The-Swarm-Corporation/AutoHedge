@@ -13,12 +13,9 @@ from rich.columns import Columns
 from rich import box
 
 from autohedge.env_loader import load_env, require_openai_key
+from autohedge.backends import resolve_llm_backend
 
 load_env()
-if not require_openai_key():
-    Console().print(
-        "[yellow]Warning: OPENAI_API_KEY not set. Set it in .env or export it.[/]"
-    )
 
 try:
     from importlib.metadata import version as _version
@@ -39,7 +36,10 @@ BANNER_ART = r"""
 """
 
 TIPS = [
-    "Enter a task prompt to run (e.g. 'Analyze NVDA for 50k allocation')",
+    (
+        "Enter a task prompt to run (e.g. 'Analyze NVDA for 50k"
+        " allocation')"
+    ),
     "Type 'quit' or 'exit' to leave",
     "Type 'help' or '?' for commands",
 ]
@@ -141,8 +141,14 @@ def _welcome() -> None:
     )
 
 
-def run_repl() -> None:
+def run_repl(llm_backend=None, codex_config=None) -> None:
+    llm_backend = resolve_llm_backend(llm_backend)
     _welcome()
+    if llm_backend == "codex":
+        console.print(
+            "[yellow]Codex research mode: provide data in your task. "
+            "No live search or order execution.[/]"
+        )
 
     while True:
         try:
@@ -172,7 +178,9 @@ def run_repl() -> None:
         try:
             from autohedge import AutoHedge
 
-            system = AutoHedge()
+            system = AutoHedge(
+                llm_backend=llm_backend, codex_config=codex_config
+            )
             console.print("[dim]Running...[/]")
             result = system.run(task=task)
             console.print(
@@ -189,7 +197,10 @@ def run_repl() -> None:
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="autohedge",
-        description="AutoHedge — interactive REPL for running research and hedging tasks.",
+        description=(
+            "AutoHedge — interactive REPL for running research and"
+            " hedging tasks."
+        ),
         epilog="""
 Commands (when running the REPL):
   <task>     Run a task (e.g. 'Analyze NVDA for 50k allocation')
@@ -203,6 +214,29 @@ Examples:
   autohedge --version    Show version
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "--llm-backend",
+        choices=("litellm", "codex"),
+        help=(
+            "Backend (or AUTOHEDGE_LLM_BACKEND; default: litellm)."
+            " Codex is research only."
+        ),
+    )
+    parser.add_argument(
+        "--codex-model",
+        help=(
+            "Codex model (or AUTOHEDGE_CODEX_MODEL; default: CLI"
+            " default)."
+        ),
+    )
+    parser.add_argument(
+        "--codex-timeout",
+        type=float,
+        help=(
+            "Seconds per Codex stage (or AUTOHEDGE_CODEX_TIMEOUT;"
+            " default: 180)."
+        ),
     )
     parser.add_argument(
         "--version",
@@ -221,8 +255,27 @@ def main() -> None:
     if len(sys.argv) == 2 and sys.argv[1].lower() == "help":
         parser.print_help()
         sys.exit(0)
-    parser.parse_args()  # exits on --help / --version
-    run_repl()
+    args = parser.parse_args()  # exits on --help / --version
+    try:
+        backend = resolve_llm_backend(args.llm_backend)
+    except ValueError as error:
+        parser.error(str(error))
+    config = {}
+    if args.codex_model is not None:
+        config["model"] = args.codex_model
+    if args.codex_timeout is not None:
+        config["timeout"] = args.codex_timeout
+    if config and backend != "codex":
+        parser.error(
+            "--codex-model/--codex-timeout require --llm-backend"
+            " codex"
+        )
+    if backend == "litellm" and not require_openai_key():
+        console.print(
+            "[yellow]Warning: OPENAI_API_KEY not set. Set it in .env"
+            " or export it.[/]"
+        )
+    run_repl(llm_backend=backend, codex_config=config or None)
     sys.exit(0)
 
 
