@@ -35,6 +35,7 @@ httpx = "*"
 solders = "*"
 yfinance = "*"
 python-dotenv = "*"
+psutil = ">=5.9"
 
 
 [tool.poetry.group.lint.dependencies]
