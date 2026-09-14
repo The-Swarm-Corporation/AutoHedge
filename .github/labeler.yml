@@ -1,54 +1,19 @@
-# this is a config file for the github action labeler
-
-# Add 'root' label to any root file changes
-# Quotation marks are required for the leading asterisk
-root:
-- changed-files:
-  - any-glob-to-any-file: '*'
-
-# Add 'Documentation' label to any changes within 'docs' folder or any subfolders
-Documentation:
-- changed-files:
-  - any-glob-to-any-file: docs/**
-
-# Add 'Tests' label to any file changes within 'docs' folder
-Tests:
-- changed-files:
-  - any-glob-to-any-file: tests/*
-
-# Add 'Documentation' label to any file changes within 'docs' or 'guides' folders
-ghactions:
-- changed-files:
-  - any-glob-to-any-file:
-    - .github/workflows/*
-    - .github/*
-
-# Add 'Scripts' label to any file changes within 'docs' folder
-Scripts:
-- changed-files:
-  - any-glob-to-any-file: scripts/*
-  
-## Equivalent of the above mentioned configuration using another syntax
-Documentation:
-- changed-files:
-  - any-glob-to-any-file: ['docs/*', 'guides/*']
-
-# Add 'Documentation' label to any change to .md files within the entire repository 
-Documentation:
-- changed-files:
-  - any-glob-to-any-file: '**/*.md'
-
-# Add 'source' label to any change to src files within the source dir EXCEPT for the docs sub-folder
-source:
-- all:
+documentation:
   - changed-files:
-    - any-glob-to-any-file: 'src/**/*'
-    - all-globs-to-all-files: '!src/docs/*'
+      - any-glob-to-any-file:
+          - "docs/**"
+          - "**/*.md"
 
-# Add 'feature' label to any PR where the head branch name starts with `feature` or has a `feature` section in the name
-feature:
- - head-branch: ['^feature', 'feature']
+github_actions:
+  - changed-files:
+      - any-glob-to-any-file: ".github/**"
 
-# Add 'release' label to any PR that is opened against the `main` branch
-release:
- - base-branch: 'main'
+python:
+  - changed-files:
+      - any-glob-to-any-file: "**/*.py"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "pyproject.toml"
+          - "requirements*.txt"
