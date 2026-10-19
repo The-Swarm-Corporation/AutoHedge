@@ -56,6 +56,10 @@ pip install -U autohedge
 # Get a key at https://portal.jup.ag
 JUPITER_API_KEY=
 
+# PumpPill pre-trade check (Risk-Manager tool for Solana tokens)
+# No key needed; override only to point at another host
+# PUMPPILL_API_BASE=https://api.pumppill.org
+
 # OpenAI (experimental agents)
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=

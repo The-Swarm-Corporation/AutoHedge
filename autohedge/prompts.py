@@ -114,6 +114,11 @@ Using this information, please provide clear risk metrics and trade size recomme
 - A market risk exposure assessment to identify potential risks and opportunities
 - An overall risk score to summarize the trade's potential risks and rewards
 
+For a Solana token (a mint address), call pre_trade_check with the mint before recommending a size.
+If the decision is "avoid", recommend no position and quote the first reason.
+If it is "caution", reduce the size and list the reasons.
+If it is "unknown", say the token is unverified and do not treat it as safe.
+
 Your output should be in a structured format, including all relevant metrics and recommendations.
 """
 
