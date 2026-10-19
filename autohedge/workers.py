@@ -15,6 +15,7 @@ from autohedge.prompts import (
     SENTIMENT_PROMPT,
 )
 from autohedge.tools.exa_search_tool import exa_search
+from autohedge.tools.pumppill_check import pre_trade_check
 
 _NOW = datetime.now()
 # Exact date and time for all agent system prompts (simple, single line)
@@ -42,6 +43,7 @@ risk_agent = Agent(
     max_loops=1,
     verbose=True,
     context_length=16000,
+    tools=[pre_trade_check],
 )
 
 execution_agent = Agent(
