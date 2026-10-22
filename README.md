@@ -61,6 +61,14 @@ OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 WORKSPACE_DIR="agent_workspace"
 
+# Optional: run every agent against any OpenAI-compatible server instead of
+# OpenAI (LiteLLM gateway, vLLM, Ollama, OpenRouter, ...). Leave unset to keep
+# the default models/endpoints. Model ids need a LiteLLM provider prefix, e.g.
+# "openai/my-model" -- the prefix is stripped before the request is sent.
+AUTOHEDGE_MODEL=
+AUTOHEDGE_LLM_BASE_URL=
+AUTOHEDGE_LLM_API_KEY=
+
 # Trading
 WALLET_PRIVATE_KEY=""
 ```
