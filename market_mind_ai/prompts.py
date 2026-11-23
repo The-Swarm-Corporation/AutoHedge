@@ -1,5 +1,5 @@
 """
-Prompt definitions for AutoHedge trading agents.
+Prompt definitions for Market Mind AI trading agents.
 """
 
 # Director Agent - Manages overall strategy and coordinates other agents
@@ -202,7 +202,7 @@ Reply with ONLY a JSON array of ticker symbols (e.g. ["NVDA", "MSFT", "GOOG"]). 
 """
 
 # --- Structured output contracts (appended to agent system prompts) ---
-# Each stage must emit machine-readable JSON matching autohedge.models.
+# Each stage must emit machine-readable JSON matching market_mind_ai.models.
 
 JSON_ONLY_INSTRUCTION = (
     "Return ONLY a single valid JSON object. No markdown fences, no prose "

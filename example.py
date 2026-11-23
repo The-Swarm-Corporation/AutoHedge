@@ -1,7 +1,7 @@
-from autohedge import AutoHedge  # loads .env from project root
+from market_mind_ai import MarketMindAI  # loads .env from project root
 
 # Initialize the trading system (tickers are derived from the task by the director)
-trading_system = AutoHedge(
+trading_system = MarketMindAI(
     name="swarms-fund",
     description="Private Hedge Fund for Swarms Corp",
 )

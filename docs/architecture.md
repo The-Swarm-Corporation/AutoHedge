@@ -2,7 +2,7 @@
 
 ## Pipeline
 
-`AutoHedge.run(task)` executes:
+`MarketMindAI.run(task)` executes:
 
 ```
 director (ticker discovery)
@@ -11,7 +11,7 @@ director (ticker discovery)
 ```
 
 The raw text of each stage is retained in `TickerResult.raw_outputs` for audit.
-Each stage's JSON is parsed with `autohedge.models.parse_model` into a typed
+Each stage's JSON is parsed with `market_mind_ai.models.parse_model` into a typed
 model; validation failures are recorded in `TickerResult.errors` and the cycle
 continues with whatever context is available.
 
@@ -28,8 +28,8 @@ continues with whatever context is available.
 
 ## Tool wiring
 
-`autohedge/tools/tools_registry.py` groups tools into research, market-data and
-execution sets. `autohedge.workers.create_agents()` attaches them to the
+`market_mind_ai/tools/tools_registry.py` groups tools into research, market-data and
+execution sets. `market_mind_ai.workers.create_agents()` attaches them to the
 appropriate agents. Imports are lazy so a missing optional dependency does not
 break the research pipeline.
 

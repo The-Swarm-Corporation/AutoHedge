@@ -2,9 +2,9 @@
 Lazy, fault-tolerant tool registry.
 
 Tools are imported on demand so a missing optional dependency (for example
-`solders` for live trading) never breaks `import autohedge` or the research
+`solders` for live trading) never breaks `import market_mind_ai` or the research
 pipeline. Registry groups are wired into the corresponding agents in
-`autohedge.workers`.
+`market_mind_ai.workers`.
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ def _load(module_path: str, name: str, bucket: List[Tool]) -> None:
 def get_research_tools() -> List[Tool]:
     """Web/news research tools for the sentiment agent."""
     tools: List[Tool] = []
-    _load("autohedge.tools.exa_search_tool", "exa_search", tools)
+    _load("market_mind_ai.tools.exa_search_tool", "exa_search", tools)
     return tools
 
 
@@ -43,16 +43,16 @@ def get_market_data_tools() -> List[Tool]:
         "get_quote_summary",
         "get_all_stock_data",
     ):
-        _load("autohedge.tools.yahoo_api", name, tools)
+        _load("market_mind_ai.tools.yahoo_api", name, tools)
     for name in (
         "get_ticker_overview",
         "get_balance_sheets",
         "get_daily_ticker_summary",
     ):
-        _load("autohedge.tools.polygon_api", name, tools)
+        _load("market_mind_ai.tools.polygon_api", name, tools)
     for name in ("search_tokens",):
-        _load("autohedge.tools.jupiter_search", name, tools)
-    _load("autohedge.tools.jupiter_price", "get_token_price", tools)
+        _load("market_mind_ai.tools.jupiter_search", name, tools)
+    _load("market_mind_ai.tools.jupiter_price", "get_token_price", tools)
     return tools
 
 
@@ -60,7 +60,7 @@ def get_execution_tools() -> List[Tool]:
     """Solana/Jupiter order and execution tools for the execution agent."""
     tools: List[Tool] = []
     for name in ("get_order", "execute_trade", "get_holdings"):
-        _load("autohedge.tools.ultra_tools", name, tools)
+        _load("market_mind_ai.tools.ultra_tools", name, tools)
     return tools
 
 

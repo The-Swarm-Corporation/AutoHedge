@@ -1,5 +1,5 @@
 """
-Structured output contracts for the AutoHedge agent pipeline.
+Structured output contracts for the Market Mind AI agent pipeline.
 
 LLM agents return text; these models are the typed contract between stages.
 `parse_model` is intentionally tolerant of the usual LLM output quirks

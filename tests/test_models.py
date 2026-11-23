@@ -1,6 +1,6 @@
 import unittest
 
-from autohedge.models import (
+from market_mind_ai.models import (
     QuantAnalysis,
     SentimentAnalysis,
     parse_model,

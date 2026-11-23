@@ -3,9 +3,9 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "autohedge"
+name = "market-mind-ai"
 version = "0.1.5"
-description = "autohedge - TGSC"
+description = "market-mind-ai - TGSC"
 license = "MIT"
 authors = ["Kye Gomez <kye@apac.ai>"]
 homepage = "https://github.com/The-Swarm-Corporation/AutoHedge"
@@ -22,7 +22,7 @@ classifiers = [
 ]
 
 [tool.poetry.scripts]
-autohedge = "autohedge.cli:main"
+market-mind-ai = "market_mind_ai.cli:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"

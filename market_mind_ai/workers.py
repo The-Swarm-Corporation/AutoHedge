@@ -1,7 +1,7 @@
 """
-AutoHedge workers: agent factory and persona definitions.
+Market Mind AI workers: agent factory and persona definitions.
 
-Each stage emits JSON matching a Pydantic contract in `autohedge.models`.
+Each stage emits JSON matching a Pydantic contract in `market_mind_ai.models`.
 `create_agents()` is the supported entry point; the module-level names are
 kept as lazy, backwards-compatible aliases.
 """
@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List
 
-from autohedge.prompts import (
+from market_mind_ai.prompts import (
     DIRECTOR_FINAL_DECISION_PROMPT,
     DIRECTOR_PROMPT,
     EXECUTION_JSON_SCHEMA,
@@ -23,7 +23,7 @@ from autohedge.prompts import (
     SENTIMENT_JSON_SCHEMA,
     SENTIMENT_PROMPT,
 )
-from autohedge.tools.tools_registry import (
+from market_mind_ai.tools.tools_registry import (
     get_execution_tools,
     get_market_data_tools,
     get_research_tools,
@@ -57,12 +57,12 @@ def create_agents(enable_trading: bool = False) -> Dict[str, Any]:
     Args:
         enable_trading: when True, the execution agent receives the Jupiter
             Ultra tools. Live order submission still requires an explicit
-            `AutoHedge(enable_trading=True, dry_run=False)` call site.
+            `MarketMindAI(enable_trading=True, dry_run=False)` call site.
 
     Returns:
         Dict keyed by stage: director, sentiment, quant, risk, execution.
     """
-    from swarms import Agent  # lazy: keeps import autohedge dependency-light
+    from swarms import Agent  # lazy: keeps import market_mind_ai dependency-light
 
     suffix = _system_suffix()
     research_tools = get_research_tools()

@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
-from autohedge.main import AutoHedge
-from autohedge.models import CycleResult
+from market_mind_ai.main import MarketMindAI
+from market_mind_ai.models import CycleResult
 
 
 DEFAULT_SENTIMENT = {
@@ -84,7 +84,7 @@ class PipelineTests(unittest.TestCase):
         self.addCleanup(self.temp_dir.cleanup)
 
     def _system(self, agents, **kwargs):
-        return AutoHedge(
+        return MarketMindAI(
             agents=agents,
             output_dir=self.temp_dir.name,
             output_type="dict",
@@ -167,7 +167,7 @@ class PipelineTests(unittest.TestCase):
             make_agents(), enable_trading=True, dry_run=False
         )
         with patch(
-            "autohedge.tools.tools_registry.load_tool", side_effect=load_tool
+            "market_mind_ai.tools.tools_registry.load_tool", side_effect=load_tool
         ):
             output = system.run("Analyze NVDA and MSFT")
 
@@ -185,7 +185,7 @@ class PipelineTests(unittest.TestCase):
             enable_trading=True,
             dry_run=False,
         )
-        with patch("autohedge.tools.tools_registry.load_tool") as load_tool:
+        with patch("market_mind_ai.tools.tools_registry.load_tool") as load_tool:
             output = system.run("Analyze NVDA")
         load_tool.assert_not_called()
         self.assertEqual(output["executions"], [])

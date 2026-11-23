@@ -1,5 +1,5 @@
 """
-AutoHedge CLI — welcome screen and interactive REPL.
+Market Mind AI CLI — welcome screen and interactive REPL.
 """
 
 import argparse
@@ -12,7 +12,7 @@ from rich.text import Text
 from rich.columns import Columns
 from rich import box
 
-from autohedge.env_loader import load_env, require_openai_key
+from market_mind_ai.env_loader import load_env, require_openai_key
 
 load_env()
 if not require_openai_key():
@@ -23,7 +23,7 @@ if not require_openai_key():
 try:
     from importlib.metadata import version as _version
 
-    VERSION = _version("autohedge")
+    VERSION = _version("market-mind-ai")
 except Exception:
     VERSION = "0.1.5"
 
@@ -44,7 +44,7 @@ TIPS = [
     "Type 'help' or '?' for commands",
 ]
 
-RECENT_FILE = Path.home() / ".autohedge" / "recent_tasks.txt"
+RECENT_FILE = Path.home() / ".market-mind-ai" / "recent_tasks.txt"
 MAX_RECENT = 5
 
 
@@ -80,7 +80,7 @@ def _welcome() -> None:
     except ValueError:
         cwd_display = str(cwd)
 
-    welcome = Text("Welcome to AutoHedge", style="bold orange1")
+    welcome = Text("Welcome to Market Mind AI", style="bold orange1")
     subtitle = Text(
         f"v{VERSION} · {cwd_display}",
         style="dim",
@@ -133,7 +133,7 @@ def _welcome() -> None:
     console.print(
         Panel(
             cols,
-            title=f"[bold]AutoHedge v{VERSION}[/]",
+            title=f"[bold]Market Mind AI v{VERSION}[/]",
             title_align="left",
             border_style="cyan",
             padding=(0, 1),
@@ -170,9 +170,9 @@ def run_repl() -> None:
         task = line
         _append_recent(task)
         try:
-            from autohedge import AutoHedge
+            from market_mind_ai import MarketMindAI
 
-            system = AutoHedge()
+            system = MarketMindAI()
             console.print("[dim]Running...[/]")
             result = system.run(task=task)
             console.print(
@@ -188,8 +188,8 @@ def run_repl() -> None:
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="autohedge",
-        description="AutoHedge — interactive REPL for running research and hedging tasks.",
+        prog="market-mind-ai",
+        description="Market Mind AI — interactive REPL for running research and hedging tasks.",
         epilog="""
 Commands (when running the REPL):
   <task>     Run a task (e.g. 'Analyze NVDA for 50k allocation')
@@ -197,10 +197,10 @@ Commands (when running the REPL):
   quit, exit, q  Exit the REPL
 
 Examples:
-  autohedge              Start the interactive REPL
-  autohedge help         Show this help
-  autohedge --help       Show this help
-  autohedge --version    Show version
+  market-mind-ai              Start the interactive REPL
+  market-mind-ai help         Show this help
+  market-mind-ai --help       Show this help
+  market-mind-ai --version    Show version
 """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -215,9 +215,9 @@ Examples:
 
 
 def main() -> None:
-    """Entry point for the AutoHedge CLI."""
+    """Entry point for the Market Mind AI CLI."""
     parser = _build_parser()
-    # Treat bare "help" as --help (e.g. "autohedge help")
+    # Treat bare "help" as --help (e.g. "market-mind-ai help")
     if len(sys.argv) == 2 and sys.argv[1].lower() == "help":
         parser.print_help()
         sys.exit(0)

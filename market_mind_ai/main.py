@@ -1,5 +1,5 @@
 """
-AutoHedge orchestration: an explicit, typed agent pipeline.
+Market Mind AI orchestration: an explicit, typed agent pipeline.
 
 The pipeline runs director (ticker discovery) -> sentiment -> quant -> risk
 -> execution (order proposal) -> director (final decision). Each stage's raw
@@ -18,7 +18,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from loguru import logger
 
-from autohedge.models import (
+from market_mind_ai.models import (
     CycleResult,
     QuantAnalysis,
     RiskAssessment,
@@ -29,7 +29,7 @@ from autohedge.models import (
     parse_model,
     parse_ticker_list,
 )
-from autohedge.prompts import (
+from market_mind_ai.prompts import (
     DIRECTOR_FINAL_DECISION_PROMPT,
     DIRECTOR_TICKER_DISCOVERY_PROMPT,
     EXECUTION_ORDER_PROMPT,
@@ -37,7 +37,7 @@ from autohedge.prompts import (
     RISK_ASSESSMENT_PROMPT,
     SENTIMENT_TASK_PROMPT,
 )
-from autohedge.workers import create_agents
+from market_mind_ai.workers import create_agents
 
 MAX_TICKERS = 10
 MAX_RAW_CHARS = 8000
@@ -64,12 +64,12 @@ def _execution_succeeded(payload: Dict[str, Any]) -> bool:
     return not payload.get("error") and bool(payload.get("signature"))
 
 
-class AutoHedge:
+class MarketMindAI:
     """Coordinates all agents and manages one trading/research cycle."""
 
     def __init__(
         self,
-        name: str = "autohedge",
+        name: str = "market-mind-ai",
         description: str = "fully autonomous hedgefund",
         output_dir: str = "outputs",
         output_file_path: Optional[str] = None,
@@ -100,7 +100,7 @@ class AutoHedge:
         except Exception as exc:
             logger.warning("Conversation log unavailable: {}", exc)
 
-        logger.info("Initialized AutoHedge (trading={}, dry_run={})",
+        logger.info("Initialized Market Mind AI (trading={}, dry_run={})",
                     self.enable_trading, self.dry_run)
 
     # ------------------------------------------------------------------ #
@@ -302,11 +302,11 @@ class AutoHedge:
             }
 
         try:
-            from autohedge.tools.tools_registry import load_tool
+            from market_mind_ai.tools.tools_registry import load_tool
 
-            get_order = load_tool("autohedge.tools.ultra_tools", "get_order")
+            get_order = load_tool("market_mind_ai.tools.ultra_tools", "get_order")
             execute_trade = load_tool(
-                "autohedge.tools.ultra_tools", "execute_trade"
+                "market_mind_ai.tools.ultra_tools", "execute_trade"
             )
             quote = json.loads(
                 get_order(order.input_mint, order.output_mint, str(order.amount))

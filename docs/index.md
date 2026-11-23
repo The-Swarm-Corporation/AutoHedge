@@ -1,6 +1,6 @@
-# AutoHedge
+# Market Mind AI
 
-AutoHedge is an autonomous multi-agent trading research framework. It runs an
+Market Mind AI is an autonomous multi-agent trading research framework. It runs an
 explicit pipeline:
 
 1. **Director** — discovers relevant tickers from the task and makes the final
@@ -11,7 +11,7 @@ explicit pipeline:
 5. **Execution** — produces a structured order proposal.
 
 Every stage emits JSON validated against the Pydantic contracts in
-`autohedge/models.py`, so a malformed agent response cannot corrupt downstream
+`market_mind_ai/models.py`, so a malformed agent response cannot corrupt downstream
 stages.
 
 ## Quick start
@@ -19,13 +19,13 @@ stages.
 ```bash
 pip install -r requirements.txt
 export OPENAI_API_KEY=...
-python -m autohedge
+python -m market_mind_ai
 ```
 
 ```python
-from autohedge import AutoHedge
+from market_mind_ai import MarketMindAI
 
-system = AutoHedge()  # research only; no live trading
+system = MarketMindAI()  # research only; no live trading
 system.run("Analyze NVDA for a 50k allocation")
 print(system.last_result)
 ```

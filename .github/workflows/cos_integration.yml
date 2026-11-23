@@ -27,7 +27,7 @@ jobs:
         run: pytest tests/ -v
 
       - name: Run code coverage
-        run: pytest --cov=autohedge tests/
+        run: pytest --cov=market_mind_ai tests/
 
       - name: Run linters
-        run: ruff check autohedge tests
+        run: ruff check market_mind_ai tests
