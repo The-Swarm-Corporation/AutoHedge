@@ -4,11 +4,15 @@ Load .env from project root so API keys work when running from any directory.
 
 import os
 from pathlib import Path
+from typing import Any
 
+load_dotenv: Any = None
 try:
-    from dotenv import load_dotenv
+    from dotenv import load_dotenv as _load_dotenv
+
+    load_dotenv = _load_dotenv
 except ImportError:  # python-dotenv is optional at import time
-    load_dotenv = None
+    pass
 
 
 def find_project_env() -> Path | None:

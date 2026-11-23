@@ -89,7 +89,7 @@ class AutoHedge:
         # orders happens unless the caller explicitly asks for it.
         self.enable_trading = bool(enable_trading)
         self.dry_run = bool(dry_run)
-        self.agents = agents
+        self.agents: Dict[str, Any] = agents if agents is not None else {}
         self.last_result: Optional[CycleResult] = None
         self.conversation: Any = None
 
@@ -152,8 +152,8 @@ class AutoHedge:
             result.errors.append(f"{stage}: no output from agent")
             return None
         parsed, error = parse_model(raw, model_type, defaults={"ticker": ticker})
-        if error:
-            result.errors.append(f"{stage}: {error}")
+        if error or parsed is None:
+            result.errors.append(f"{stage}: {error or 'empty model output'}")
             return None
         # The stage must describe the ticker this pipeline asked about, even
         # if the model echoed a different symbol from its context.
@@ -346,7 +346,7 @@ class AutoHedge:
         logger.info("Starting trading cycle")
 
         try:
-            if self.agents is None:
+            if not self.agents:
                 self.agents = create_agents(enable_trading=self.enable_trading)
 
             tickers, error = self._discover_tickers(task)
