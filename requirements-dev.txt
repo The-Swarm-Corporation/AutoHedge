@@ -1,0 +1,9 @@
+# Test, lint and documentation tooling.
+# Includes the runtime dependencies via -r so a single install is sufficient.
+-r requirements.txt
+
+pytest
+pytest-cov
+ruff
+mypy
+mkdocs-material

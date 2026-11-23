@@ -8,6 +8,3 @@ httpx
 solders
 yfinance
 requests
-pytest
-pytest-cov
-ruff

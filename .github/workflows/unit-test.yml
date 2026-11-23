@@ -21,13 +21,13 @@ jobs:
         python-version: '3.10'
 
     - name: Install dependencies
-      run: pip install --no-cache-dir -r requirements.txt
+      run: pip install --no-cache-dir -r requirements-dev.txt
 
     - name: Run Python unit tests
       run: python -m unittest discover -s tests -v
 
     - name: Verify that the Docker image builds
-      run: docker build . --file Dockerfile
+      run: docker build -t autohedge:test . --file Dockerfile
 
     - name: Re-run tests inside the built image
       run: docker run --rm autohedge:test python -m unittest discover -s tests -v
