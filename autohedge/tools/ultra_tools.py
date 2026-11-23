@@ -54,10 +54,11 @@ def _get_keypair() -> Keypair:
     ValueError
         If SOLANA_PRIVATE_KEY is missing or invalid.
     """
-    raw = os.getenv("SOLANA_PRIVATE_KEY")
+    raw = os.getenv("SOLANA_PRIVATE_KEY") or os.getenv("WALLET_PRIVATE_KEY")
     if not raw or not raw.strip():
         raise ValueError(
-            "SOLANA_PRIVATE_KEY is required in .env to sign transactions"
+            "SOLANA_PRIVATE_KEY (or WALLET_PRIVATE_KEY) is required in "
+            ".env to sign transactions"
         )
     try:
         return Keypair.from_base58_string(raw.strip())

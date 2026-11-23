@@ -25,7 +25,7 @@ try:
 
     VERSION = _version("autohedge")
 except Exception:
-    VERSION = "0.1.2"
+    VERSION = "0.1.5"
 
 console = Console()
 

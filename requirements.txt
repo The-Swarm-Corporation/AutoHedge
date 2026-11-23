@@ -2,8 +2,12 @@ swarms
 pydantic
 loguru
 swarm-models
-fastapi 
-uvicorn 
-requests
+rich
+python-dotenv
 httpx
 solders
+yfinance
+requests
+pytest
+pytest-cov
+ruff

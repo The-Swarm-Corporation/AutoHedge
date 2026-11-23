@@ -200,3 +200,110 @@ Task: {task}
 
 Reply with ONLY a JSON array of ticker symbols (e.g. ["NVDA", "MSFT", "GOOG"]). Use US exchange symbols. No other text.
 """
+
+# --- Structured output contracts (appended to agent system prompts) ---
+# Each stage must emit machine-readable JSON matching autohedge.models.
+
+JSON_ONLY_INSTRUCTION = (
+    "Return ONLY a single valid JSON object. No markdown fences, no prose "
+    "before or after, and no commentary. Use the exact keys shown below."
+)
+
+SENTIMENT_JSON_SCHEMA = """
+""" + JSON_ONLY_INSTRUCTION + """
+{
+  "ticker": "STRING (the ticker symbol)",
+  "overall_sentiment_score": NUMBER between 0 and 1,
+  "news_sentiment": "STRING",
+  "social_sentiment": "STRING",
+  "institutional_sentiment": "STRING",
+  "key_themes": ["STRING"],
+  "critical_events": ["STRING"],
+  "sentiment_trend": "STRING (improving/deteriorating/stable)",
+  "trading_implications": "STRING",
+  "contrarian_signals": "STRING"
+}
+"""
+
+QUANT_JSON_SCHEMA = """
+""" + JSON_ONLY_INSTRUCTION + """
+{
+  "ticker": "STRING (the ticker symbol)",
+  "technical_score": NUMBER between 0 and 1,
+  "volume_score": NUMBER between 0 and 1,
+  "trend_strength": NUMBER between 0 and 1,
+  "volatility": NUMBER,
+  "probability_score": NUMBER between 0 and 1,
+  "key_levels": {
+    "support": NUMBER,
+    "resistance": NUMBER,
+    "pivot": NUMBER
+  },
+  "rationale": "STRING"
+}
+"""
+
+RISK_JSON_SCHEMA = """
+""" + JSON_ONLY_INSTRUCTION + """
+{
+  "ticker": "STRING (the ticker symbol)",
+  "recommended_position_size": "STRING",
+  "max_drawdown_risk": "STRING",
+  "market_risk_exposure": "STRING",
+  "overall_risk_score": NUMBER between 0 and 1,
+  "notes": "STRING"
+}
+"""
+
+EXECUTION_JSON_SCHEMA = """
+""" + JSON_ONLY_INSTRUCTION + """
+{
+  "symbol": "STRING (ticker or Solana token mint)",
+  "order_type": "STRING (market/limit)",
+  "quantity": NUMBER,
+  "entry_price": NUMBER,
+  "stop_loss": NUMBER,
+  "take_profit": NUMBER,
+  "time_in_force": "STRING",
+  "input_mint": "STRING or null (Solana input mint for a swap)",
+  "output_mint": "STRING or null (Solana output mint for a swap)",
+  "amount": "STRING or null (input amount in smallest units)"
+}
+"""
+
+DECISION_JSON_SCHEMA = """
+""" + JSON_ONLY_INSTRUCTION + """
+{
+  "ticker": "STRING (the ticker symbol)",
+  "action": "STRING (BUY, SELL or HOLD)",
+  "confidence": NUMBER between 0 and 1,
+  "thesis": "STRING",
+  "reasoning": "STRING",
+  "order": {
+    "symbol": "STRING",
+    "order_type": "STRING",
+    "quantity": NUMBER,
+    "entry_price": NUMBER,
+    "stop_loss": NUMBER,
+    "take_profit": NUMBER,
+    "time_in_force": "STRING",
+    "input_mint": "STRING or null",
+    "output_mint": "STRING or null",
+    "amount": "STRING or null"
+  }
+}
+"""
+
+SENTIMENT_TASK_PROMPT = "Analyze market sentiment for {ticker}.\nTask context: {task}"
+
+DIRECTOR_FINAL_DECISION_PROMPT = """
+You are the Trading Director. Decide the final action for {ticker} using all
+stage outputs below. Be conservative: choose HOLD when evidence is weak or
+contradictory.
+
+Task: {task}
+Thesis: {thesis}
+Quant analysis: {quant_analysis}
+Risk assessment: {risk_assessment}
+Proposed order: {order}
+"""

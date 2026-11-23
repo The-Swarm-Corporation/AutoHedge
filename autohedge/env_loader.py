@@ -5,7 +5,10 @@ Load .env from project root so API keys work when running from any directory.
 import os
 from pathlib import Path
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:  # python-dotenv is optional at import time
+    load_dotenv = None
 
 
 def find_project_env() -> Path | None:
@@ -20,6 +23,8 @@ def find_project_env() -> Path | None:
 
 def load_env() -> None:
     """Load .env from project root; fall back to cwd. Does not override existing env."""
+    if load_dotenv is None:
+        return
     env_path = find_project_env()
     if env_path:
         load_dotenv(env_path, override=False)

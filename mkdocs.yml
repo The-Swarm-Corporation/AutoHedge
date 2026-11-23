@@ -1,0 +1,17 @@
+site_name: AutoHedge
+site_description: Autonomous multi-agent trading research and execution framework
+repo_url: https://github.com/The-Swarm-Corporation/AutoHedge
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - fenced_code

@@ -21,10 +21,5 @@ jobs:
       - name: Install dependencies
         run: pip install --no-cache-dir -r requirements.txt
 
-      - name: Find Python files
-        run: find swarms_torch -name "*.py" -type f -exec autopep8 --in-place --aggressive --aggressive {} +
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check code quality
+        run: ruff check autohedge tests

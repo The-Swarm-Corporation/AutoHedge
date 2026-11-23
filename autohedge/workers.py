@@ -1,93 +1,178 @@
 """
-AutoHedge workers: Pydantic output models and agents for thesis
-generation, risk assessment, execution, and quantitative analysis.
+AutoHedge workers: agent factory and persona definitions.
+
+Each stage emits JSON matching a Pydantic contract in `autohedge.models`.
+`create_agents()` is the supported entry point; the module-level names are
+kept as lazy, backwards-compatible aliases.
 """
 
-from datetime import datetime
+from __future__ import annotations
 
-from swarms import Agent
+from datetime import datetime
+from typing import Any, Dict, List
 
 from autohedge.prompts import (
+    DIRECTOR_FINAL_DECISION_PROMPT,
     DIRECTOR_PROMPT,
+    EXECUTION_JSON_SCHEMA,
     EXECUTION_PROMPT,
+    QUANT_JSON_SCHEMA,
     QUANT_PROMPT,
+    RISK_JSON_SCHEMA,
     RISK_PROMPT,
+    SENTIMENT_JSON_SCHEMA,
     SENTIMENT_PROMPT,
 )
-from autohedge.tools.exa_search_tool import exa_search
-
-_NOW = datetime.now()
-# Exact date and time for all agent system prompts (simple, single line)
-_DATE_TIME_LINE = _NOW.strftime("%A, %B %d, %Y at %H:%M")
-if _NOW.tzinfo:
-    _DATE_TIME_LINE += f" {_NOW.tzname() or ''}"
-_SYSTEM_SUFFIX = f"\n\nCurrent date and time (use this as now): {_DATE_TIME_LINE.strip()}"
-
-sentiment_agent = Agent(
-    agent_name="Sentiment-Agent",
-    system_prompt=SENTIMENT_PROMPT + _SYSTEM_SUFFIX,
-    model_name="gpt-4o-mini",
-    verbose=True,
-    max_loops=1,
-    tools=[exa_search],
+from autohedge.tools.tools_registry import (
+    get_execution_tools,
+    get_market_data_tools,
+    get_research_tools,
 )
 
-risk_agent = Agent(
-    agent_name="Risk-Manager",
-    system_prompt=RISK_PROMPT.strip()
-    + "\n\nWhen you receive a message, it will contain:\nStock, Thesis, Quant Analysis.\n\nProvide risk assessment including:\n1. Recommended position size\n2. Maximum drawdown risk\n3. Market risk exposure\n4. Overall risk score"
-    + _SYSTEM_SUFFIX,
-    model_name="gpt-4.1",
-    output_type="str",
-    max_loops=1,
-    verbose=True,
-    context_length=16000,
-)
+_LEGACY_NAMES = {
+    "sentiment_agent": "sentiment",
+    "risk_agent": "risk",
+    "execution_agent": "execution",
+    "quant_agent": "quant",
+    "director_agent": "__legacy_director__",
+}
 
-execution_agent = Agent(
-    agent_name="Execution-Agent",
-    system_prompt=EXECUTION_PROMPT.strip()
-    + "\n\nWhen you receive a message, it will contain:\nStock, Thesis, Risk Assessment.\n\nGenerate trade order including:\n1. Order type (market/limit)\n2. Quantity\n3. Entry price\n4. Stop loss\n5. Take profit\n6. Time in force"
-    + _SYSTEM_SUFFIX,
-    model_name="gpt-4.1",
-    output_type="str",
-    max_loops=1,
-    verbose=True,
-    context_length=16000,
-)
-
-quant_agent = Agent(
-    agent_name="Quant-Analyst",
-    system_prompt=QUANT_PROMPT.strip()
-    + "\n\nWhen you receive a message, it will contain:\nStock and Thesis from your Director.\n\nGenerate quantitative analysis with: ticker, technical_score (0-1), volume_score (0-1), trend_strength (0-1), volatility, probability_score (0-1), key_levels (support, resistance, pivot)."
-    + _SYSTEM_SUFFIX,
-    model_name="gpt-4.1",
-    output_type="str",
-    max_loops=1,
-    verbose=True,
-    context_length=16000,
-)
+_DEFAULT_AGENTS: Dict[str, Any] | None = None
+_LEGACY_DIRECTOR: Any = None
 
 
-ALL_AGENTS = [
-    sentiment_agent,
-    risk_agent,
-    execution_agent,
-    quant_agent,
-]
+def _system_suffix() -> str:
+    """Fresh 'current time' hint for agent system prompts."""
+    now = datetime.now()
+    line = now.strftime("%A, %B %d, %Y at %H:%M")
+    if now.tzinfo:
+        line += f" {now.tzname() or ''}"
+    return f"\n\nCurrent date and time (use this as now): {line.strip()}"
 
 
-director_agent = Agent(
-    agent_name="Trading-Director",
-    system_prompt=DIRECTOR_PROMPT + _SYSTEM_SUFFIX,
-    model_name="gpt-4.1",
-    max_loops=1,
-    handoffs=ALL_AGENTS,
-)
+def create_agents(enable_trading: bool = False) -> Dict[str, Any]:
+    """
+    Build the pipeline agents.
 
+    Args:
+        enable_trading: when True, the execution agent receives the Jupiter
+            Ultra tools. Live order submission still requires an explicit
+            `AutoHedge(enable_trading=True, dry_run=False)` call site.
 
-if __name__ == "__main__":
-    output = director_agent.run(
-        "Analyze the stock market and provide a thesis on the overall market position and expected trends."
+    Returns:
+        Dict keyed by stage: director, sentiment, quant, risk, execution.
+    """
+    from swarms import Agent  # lazy: keeps import autohedge dependency-light
+
+    suffix = _system_suffix()
+    research_tools = get_research_tools()
+    market_tools = get_market_data_tools()
+    execution_tools = get_execution_tools() if enable_trading else []
+
+    sentiment_agent = Agent(
+        agent_name="Sentiment-Agent",
+        system_prompt=SENTIMENT_PROMPT + "\n\n" + SENTIMENT_JSON_SCHEMA + suffix,
+        model_name="gpt-4o-mini",
+        verbose=True,
+        max_loops=1,
+        tools=research_tools,
+        output_type="str",
     )
-    print(output)
+
+    quant_agent = Agent(
+        agent_name="Quant-Analyst",
+        system_prompt=QUANT_PROMPT.strip()
+        + "\n\n" + QUANT_JSON_SCHEMA + suffix,
+        model_name="gpt-4.1",
+        output_type="str",
+        max_loops=1,
+        verbose=True,
+        context_length=16000,
+        tools=market_tools,
+    )
+
+    risk_agent = Agent(
+        agent_name="Risk-Manager",
+        system_prompt=RISK_PROMPT.strip()
+        + "\n\n" + RISK_JSON_SCHEMA + suffix,
+        model_name="gpt-4.1",
+        output_type="str",
+        max_loops=1,
+        verbose=True,
+        context_length=16000,
+        tools=market_tools,
+    )
+
+    execution_agent = Agent(
+        agent_name="Execution-Agent",
+        system_prompt=EXECUTION_PROMPT.strip()
+        + "\n\n" + EXECUTION_JSON_SCHEMA + suffix,
+        model_name="gpt-4.1",
+        output_type="str",
+        max_loops=1,
+        verbose=True,
+        context_length=16000,
+        tools=execution_tools,
+    )
+
+    director_agent = Agent(
+        agent_name="Trading-Director",
+        system_prompt=DIRECTOR_PROMPT + DIRECTOR_FINAL_DECISION_PROMPT + suffix,
+        model_name="gpt-4.1",
+        max_loops=1,
+        verbose=True,
+        context_length=16000,
+        tools=research_tools + market_tools,
+    )
+
+    return {
+        "director": director_agent,
+        "sentiment": sentiment_agent,
+        "quant": quant_agent,
+        "risk": risk_agent,
+        "execution": execution_agent,
+    }
+
+
+def get_default_agents() -> Dict[str, Any]:
+    """Cached default agent set (safe, no trading tools attached)."""
+    global _DEFAULT_AGENTS
+    if _DEFAULT_AGENTS is None:
+        _DEFAULT_AGENTS = create_agents(enable_trading=False)
+    return _DEFAULT_AGENTS
+
+
+def _get_legacy_director() -> Any:
+    """Recreate the old handoff-enabled director for legacy callers."""
+    global _LEGACY_DIRECTOR
+    if _LEGACY_DIRECTOR is None:
+        from swarms import Agent
+
+        agents = get_default_agents()
+        handoffs: List[Any] = [
+            agents["sentiment"],
+            agents["risk"],
+            agents["execution"],
+            agents["quant"],
+        ]
+        _LEGACY_DIRECTOR = Agent(
+            agent_name="Trading-Director",
+            system_prompt=DIRECTOR_PROMPT + _system_suffix(),
+            model_name="gpt-4.1",
+            max_loops=1,
+            handoffs=handoffs,
+        )
+    return _LEGACY_DIRECTOR
+
+
+def __getattr__(name: str) -> Any:
+    """Lazy aliases for the old module-level agent names."""
+    key = _LEGACY_NAMES.get(name)
+    if key == "__legacy_director__":
+        return _get_legacy_director()
+    if key is not None:
+        return get_default_agents()[key]
+    if name == "ALL_AGENTS":
+        agents = get_default_agents()
+        return [agents[k] for k in ("sentiment", "risk", "execution", "quant")]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

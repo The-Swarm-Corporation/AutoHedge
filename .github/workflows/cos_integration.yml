@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
@@ -21,22 +24,10 @@ jobs:
         run: pip install --no-cache-dir -r requirements.txt
 
       - name: Run unit tests
-        run: pytest tests/unit
-
-      - name: Run integration tests
-        run: pytest tests/integration
+        run: pytest tests/ -v
 
       - name: Run code coverage
-        run: pytest --cov=swarms tests/
+        run: pytest --cov=autohedge tests/
 
       - name: Run linters
-        run: pylint swarms
-
-      - name: Build documentation
-        run: make docs
-
-      - name: Validate documentation
-        run: sphinx-build -b linkcheck docs build/docs
-
-      - name: Run performance tests
-        run: pytest tests/performance
+        run: ruff check autohedge tests

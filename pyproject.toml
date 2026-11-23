@@ -18,7 +18,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9"
+    "Programming Language :: Python :: 3.10"
 ]
 
 [tool.poetry.scripts]
@@ -57,6 +57,9 @@ aggressive = 3
 
 [tool.ruff]
 line-length = 70
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
 
 [tool.black]
 line-length = 70

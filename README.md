@@ -52,26 +52,54 @@ pip install -U autohedge
 ### Environment Variables
 
 ```bash
-# Jupiter API (token price & search tools)
+# Jupiter API (token price, search and Ultra swap tools)
 # Get a key at https://portal.jup.ag
 JUPITER_API_KEY=
 
-# OpenAI (experimental agents)
+# OpenAI / Anthropic (agents)
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 WORKSPACE_DIR="agent_workspace"
 
-# Trading
-WALLET_PRIVATE_KEY=""
+# News research (Exa) and stock data (Massive)
+EXA_API_KEY=
+MASSIVE_API_KEY=
+
+# Trading: base58-encoded Solana private key used to sign Jupiter swaps
+SOLANA_PRIVATE_KEY=""
 ```
 
-See `.env.example` for a full reference.
+See `.env.example` for a full reference. `WALLET_PRIVATE_KEY` is accepted as a
+backwards-compatible alias for `SOLANA_PRIVATE_KEY`.
 
 ### Basic Usage
 
-```python
-autohedge 
+```bash
+autohedge          # interactive REPL (research only by default)
 ```
+
+```python
+from autohedge import AutoHedge
+
+system = AutoHedge()                       # safe defaults: no live trading
+result = system.run("Analyze NVDA for a 50k allocation")
+print(system.last_result)                  # typed CycleResult
+```
+
+The pipeline is explicit: director (ticker discovery) → sentiment → quant →
+risk → execution (order proposal) → director (final decision). Every stage
+emits JSON validated against the Pydantic contracts in `autohedge/models.py`.
+
+**Live trading is opt-in.** Attaching the Jupiter execution tools and
+submitting signed transactions both require explicit flags:
+
+```python
+AutoHedge(enable_trading=True, dry_run=True)   # tools attached, no submission
+AutoHedge(enable_trading=True, dry_run=False)  # actually submits swaps
+```
+
+Only decisions with a complete `input_mint` / `output_mint` / `amount` and an
+action of BUY or SELL are submitted; everything else stays a proposal.
 
 ---
 

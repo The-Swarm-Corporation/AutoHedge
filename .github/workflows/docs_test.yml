@@ -21,8 +21,8 @@ jobs:
       - name: Install dependencies
         run: pip install --no-cache-dir -r requirements.txt
 
-      - name: Build documentation
-        run: make docs
+      - name: Install docs tooling
+        run: pip install mkdocs-material
 
-      - name: Validate documentation
-        run: sphinx-build -b linkcheck docs build/docs
+      - name: Build documentation
+        run: mkdocs build --strict
