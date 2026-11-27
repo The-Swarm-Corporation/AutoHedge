@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import httpx
 from loguru import logger
@@ -86,6 +86,21 @@ class QwenConfig:
         """Full chat-completions endpoint URL."""
         return f"{self.api_base}/chat/completions"
 
+    def validate(self) -> List[str]:
+        """Return a list of configuration problems (empty when valid)."""
+        problems: List[str] = []
+        if not self.is_configured:
+            problems.append("QWEN_API_KEY is not set")
+        if not self.api_base.startswith(("http://", "https://")):
+            problems.append("QWEN_API_BASE must be an http(s) URL")
+        if self.timeout <= 0:
+            problems.append("QWEN_TIMEOUT must be positive")
+        if self.max_tokens <= 0:
+            problems.append("QWEN_MAX_TOKENS must be positive")
+        if not 0 <= self.temperature <= 2:
+            problems.append("QWEN_TEMPERATURE must be between 0 and 2")
+        return problems
+
 
 class QwenClient:
     """
@@ -125,6 +140,28 @@ class QwenClient:
             self._client.close()
             self._client = None
 
+    def check_availability(self) -> Tuple[bool, str]:
+        """
+        Probe whether the configured model endpoint is reachable.
+
+        Returns ``(available, reason)``. Never raises. A missing key or an
+        invalid configuration short-circuits before any network call.
+        """
+        problems = self.config.validate()
+        if problems:
+            return False, "; ".join(problems)
+        try:
+            client = self._get_client()
+            response = client.get(
+                f"{self.config.api_base}/models",
+                timeout=self.config.timeout,
+            )
+            response.raise_for_status()
+            return True, "available"
+        except Exception as exc:
+            logger.warning("Qwen availability probe failed: {}", exc)
+            return False, str(exc)
+
     def complete(
         self,
         prompt: str,
@@ -142,10 +179,17 @@ class QwenClient:
         unavailable or the request fails — callers should treat an empty
         response as "model unavailable" and degrade gracefully.
         """
-        if not self.is_available:
+        problems = self.config.validate()
+        if problems or not self.is_available:
             logger.warning(
-                "Qwen client not configured: QWEN_API_KEY is not set"
+                "Qwen client unavailable: {}", "; ".join(problems)
             )
+            return ""
+        if not isinstance(prompt, str) or not prompt.strip():
+            logger.warning("Qwen completion rejected: empty prompt")
+            return ""
+        if timeout is not None and timeout <= 0:
+            logger.warning("Qwen completion rejected: invalid timeout")
             return ""
 
         messages: List[Dict[str, str]] = []
@@ -243,6 +287,55 @@ class QwenClient:
                 except (ValueError, TypeError):
                     pass
             return None
+
+    def complete_research(
+        self,
+        entity: str,
+        context: str,
+        *,
+        model: Optional[str] = None,
+        timeout: Optional[float] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Model-assisted research analysis with validated structured output.
+
+        The response must be a JSON object containing ``summary`` (str),
+        ``sentiment`` (str), and ``confidence`` (0..1). Any other shape is
+        rejected. Returns None when the model is unavailable or the output
+        fails validation. Never performs network calls without a key.
+        """
+        prompt = (
+            f"Research entity: {entity}\n"
+            f"Source context: {context[:1200] or 'none provided'}\n"
+            "Return JSON with keys: summary (string), "
+            "sentiment (string), confidence (number 0-1)."
+        )
+        data = self.complete_json(
+            prompt,
+            system="You are a research analyst. Respond with JSON only.",
+            model=model,
+            timeout=timeout,
+        )
+        if not isinstance(data, dict):
+            return None
+        summary = data.get("summary")
+        sentiment = data.get("sentiment")
+        confidence = data.get("confidence")
+        if not isinstance(summary, str) or not isinstance(sentiment, str):
+            return None
+        if not isinstance(confidence, (int, float, str)):
+            return None
+        try:
+            score = float(confidence)
+        except (TypeError, ValueError):
+            return None
+        if not 0.0 <= score <= 1.0:
+            return None
+        return {
+            "summary": summary[:1000],
+            "sentiment": sentiment[:64],
+            "confidence": score,
+        }
 
     def __enter__(self) -> "QwenClient":
         return self

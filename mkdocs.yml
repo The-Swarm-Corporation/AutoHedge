@@ -8,6 +8,7 @@ theme:
 nav:
   - Home: index.md
   - Architecture: architecture.md
+  - Research Pipeline: research-pipeline.md
 
 plugins:
   - search

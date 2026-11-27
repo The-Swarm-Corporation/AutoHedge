@@ -320,5 +320,105 @@ class EnvLoaderQwenTests(unittest.TestCase):
             self.assertEqual(qwen_is_configured(), require_qwen_key())
 
 
+class QwenHardeningTests(unittest.TestCase):
+    """Config validation, availability probe and structured research output."""
+
+    def test_config_validate_reports_missing_key_and_bad_values(self):
+        with patch.dict(
+            os.environ,
+            {
+                "QWEN_API_BASE": "not-a-url",
+                "QWEN_TIMEOUT": "-1",
+                "QWEN_MAX_TOKENS": "0",
+                "QWEN_TEMPERATURE": "5",
+            },
+            clear=True,
+        ):
+            problems = QwenConfig().validate()
+        self.assertTrue(any("API_KEY" in p for p in problems))
+        self.assertTrue(any("http" in p for p in problems))
+        self.assertTrue(any("TIMEOUT" in p for p in problems))
+        self.assertTrue(any("MAX_TOKENS" in p for p in problems))
+        self.assertTrue(any("TEMPERATURE" in p for p in problems))
+
+    def test_config_validate_ok_with_valid_env(self):
+        with patch.dict(
+            os.environ,
+            {"QWEN_API_KEY": "k", "QWEN_API_BASE": "https://api.test/v1"},
+            clear=True,
+        ):
+            self.assertEqual(QwenConfig().validate(), [])
+
+    def test_check_availability_short_circuits_without_key(self):
+        with patch.dict(os.environ, {}, clear=True):
+            available, reason = QwenClient().check_availability()
+        self.assertFalse(available)
+        self.assertIn("API_KEY", reason)
+
+    def test_check_availability_success_with_mocked_probe(self):
+        env = {"QWEN_API_KEY": "k", "QWEN_API_BASE": "https://api.test/v1"}
+        with patch.dict(os.environ, env, clear=True):
+            client = QwenClient()
+            mock_client = MagicMock()
+            mock_client.get.return_value.raise_for_status.return_value = None
+            with patch.object(
+                client, "_get_client", return_value=mock_client
+            ):
+                available, reason = client.check_availability()
+        self.assertTrue(available)
+        self.assertEqual(reason, "available")
+        client.close()
+
+    def test_check_availability_handles_probe_failure(self):
+        import httpx
+
+        env = {"QWEN_API_KEY": "k", "QWEN_API_BASE": "https://api.test/v1"}
+        with patch.dict(os.environ, env, clear=True):
+            client = QwenClient()
+            mock_client = MagicMock()
+            mock_client.get.side_effect = httpx.ConnectError("offline")
+            with patch.object(
+                client, "_get_client", return_value=mock_client
+            ):
+                available, reason = client.check_availability()
+        self.assertFalse(available)
+        self.assertIn("offline", reason)
+
+    def test_complete_rejects_empty_prompt(self):
+        with patch.dict(os.environ, {"QWEN_API_KEY": "k"}, clear=True):
+            client = QwenClient()
+            self.assertEqual(client.complete("   "), "")
+
+    def test_complete_research_validates_structured_output(self):
+        with patch.dict(os.environ, {"QWEN_API_KEY": "k"}, clear=True):
+            client = QwenClient()
+            with patch.object(
+                client,
+                "complete_json",
+                return_value={
+                    "summary": "Mocked bullish outlook",
+                    "sentiment": "bullish",
+                    "confidence": 0.75,
+                },
+            ):
+                result = client.complete_research("NVDA", "mock context")
+            self.assertIsNotNone(result)
+            self.assertEqual(result["confidence"], 0.75)
+
+    def test_complete_research_rejects_bad_confidence(self):
+        with patch.dict(os.environ, {"QWEN_API_KEY": "k"}, clear=True):
+            client = QwenClient()
+            with patch.object(
+                client,
+                "complete_json",
+                return_value={
+                    "summary": "x",
+                    "sentiment": "y",
+                    "confidence": 4.2,
+                },
+            ):
+                self.assertIsNone(client.complete_research("NVDA", "ctx"))
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -50,7 +50,15 @@ QWEN_TEMPERATURE=0.7
 
 All Qwen configuration is read from environment variables — no credentials or
 endpoints are hardcoded. Qwen is used for research / analysis only; it never
-connects to brokers or submits orders.
+connects to brokers or submits orders. The client validates configuration,
+probes availability, rejects empty requests, and validates structured
+research output (`summary`, `sentiment`, `confidence` 0–1). When no key is
+set, inference is skipped and findings are marked `unavailable`.
+
+For the full research-only workflow (task creation → discovery → source
+retrieval → validation → processing → model analysis → persistence →
+completion/failure), see [docs/research-pipeline.md](docs/research-pipeline.md).
+All model-inference tests use mocks; no test claims real Qwen inference.
 
 ## Supported Venues
 
