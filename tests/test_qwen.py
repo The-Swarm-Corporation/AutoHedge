@@ -420,5 +420,61 @@ class QwenHardeningTests(unittest.TestCase):
                 self.assertIsNone(client.complete_research("NVDA", "ctx"))
 
 
+class QwenFailureRegressionTests(unittest.TestCase):
+    """Timeouts, malformed payloads and secret-leak regressions."""
+
+    def _client(self):
+        with patch.dict(
+            os.environ,
+            {"QWEN_API_KEY": "test-key", "QWEN_API_BASE": "https://api.test/v1"},
+            clear=True,
+        ):
+            return QwenClient()
+
+    def test_timeout_returns_empty_not_raise(self):
+        import httpx
+
+        client = self._client()
+        mock_client = MagicMock()
+        mock_client.post.side_effect = httpx.TimeoutException("timed out")
+        with patch.object(client, "_get_client", return_value=mock_client):
+            result = client.complete("prompt", timeout=0.001)
+        self.assertEqual(result, "")
+
+    def test_malformed_json_response_returns_empty(self):
+        client = self._client()
+        response = MagicMock()
+        response.raise_for_status.return_value = None
+        response.json.side_effect = ValueError("not json")
+        mock_client = MagicMock()
+        mock_client.post.return_value = response
+        with patch.object(client, "_get_client", return_value=mock_client):
+            self.assertEqual(client.complete("prompt"), "")
+
+    def test_message_without_content_returns_empty(self):
+        client = self._client()
+        response = MagicMock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = {"choices": [{"message": {}}]}
+        mock_client = MagicMock()
+        mock_client.post.return_value = response
+        with patch.object(client, "_get_client", return_value=mock_client):
+            self.assertEqual(client.complete("prompt"), "")
+
+    def test_api_key_is_not_logged_on_failure(self):
+        from loguru import logger
+
+        client = self._client()
+        sink = []
+        handler_id = logger.add(sink.append, level="ERROR")
+        self.addCleanup(lambda: logger.remove(handler_id))
+        mock_client = MagicMock()
+        mock_client.post.side_effect = RuntimeError("network down")
+        with patch.object(client, "_get_client", return_value=mock_client):
+            client.complete("prompt")
+        logged = "".join(str(entry) for entry in sink)
+        self.assertNotIn("test-key", logged)
+
+
 if __name__ == "__main__":
     unittest.main()

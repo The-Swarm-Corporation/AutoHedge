@@ -85,6 +85,14 @@ class ResearchFinding(BaseModel):
         return value
 
 
+class StateTransition(BaseModel):
+    """Audit record for one task state transition."""
+
+    state: str
+    at: str = ""
+    note: str = ""
+
+
 class ResearchTask(BaseModel):
     """Persistent state of a research task."""
 
@@ -98,6 +106,15 @@ class ResearchTask(BaseModel):
     created_at: str = ""
     updated_at: str = ""
     attempts: int = 0
+    history: List[StateTransition] = Field(default_factory=list)
+
+    def record(self, state: str, note: str = "") -> None:
+        """Append an audit record for a state transition."""
+        self.state = state
+        self.updated_at = _utc_now()
+        self.history.append(
+            StateTransition(state=state, at=self.updated_at, note=note)
+        )
 
     @field_validator("state")
     @classmethod
@@ -234,7 +251,9 @@ class ResearchPipeline:
             created_at=_utc_now(),
             updated_at=_utc_now(),
         )
-        # Idempotent: an existing completed task is returned unchanged.
+        # Idempotent: any existing task is returned unchanged. Replaying a
+        # failed task is done explicitly via retry(), which preserves audit
+        # lineage.
         existing = self.store.load(task.task_id)
         if existing is not None:
             return existing
@@ -357,8 +376,8 @@ class ResearchPipeline:
 
         task.attempts += 1
 
-        def _transition(state: str) -> None:
-            task.state = state
+        def _transition(state: str, note: str = "") -> None:
+            task.record(state, note)
             self.store.save(task)
 
         try:
@@ -377,7 +396,10 @@ class ResearchPipeline:
             task.sources, source_errors = self.validate_sources(task.sources)
             task.errors.extend(source_errors)
 
-            _transition("processing")
+            _transition(
+                "processing",
+                f"{len(task.sources)} validated source(s) ready",
+            )
 
             _transition("analyzing")
             task.findings = [
@@ -387,11 +409,30 @@ class ResearchPipeline:
             if not task.findings:
                 raise ValueError("no findings produced")
 
-            task.state = "completed"
+            task.record("completed")
             self.store.save(task)
             return task
         except Exception as exc:
-            task.state = "failed"
             task.errors.append(str(exc))
+            task.record("failed", str(exc)[:500])
             self.store.save(task)
             return task
+
+    def retry(self, query: str) -> Optional[ResearchTask]:
+        """
+        Re-run a failed task, preserving its audit lineage.
+
+        Completed tasks are never retried (idempotency guard). Missing tasks
+        return None. A failed task is reset to ``created`` and replayed
+        through the full workflow; prior errors and transition history stay
+        in the record for audit purposes.
+        """
+        task_id = _task_id(str(query).strip().lower())
+        task = self.store.load(task_id)
+        if task is None:
+            return None
+        if task.state != "failed":
+            return task
+        task.record("created", f"retry #{task.attempts + 1}")
+        self.store.save(task)
+        return self.run(query)

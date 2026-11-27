@@ -183,5 +183,75 @@ class ResearchPipelineQwenConfigTests(unittest.TestCase):
                 self.assertIsNone(p.client)
 
 
+class ResearchRetryAndAuditTests(unittest.TestCase):
+    """Retry, lineage and audit regressions."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.store = FileTaskStore(self.tmp.name)
+
+    def test_failed_task_can_be_retried_and_preserves_lineage(self):
+        p = ResearchPipeline(store=self.store)
+        failed = p.run("Analyze the market today")  # no entities -> failed
+        self.assertEqual(failed.state, "failed")
+        self.assertEqual(failed.attempts, 1)
+        self.assertEqual(
+            [t.state for t in failed.history][-1], "failed"
+        )
+
+        # Retry with a query that now yields entities changes the task ID, so
+        # simulate a transient failure on the same query via a failing
+        # retriever, then a working one.
+        def failing(q, e):
+            raise RuntimeError("offline")
+
+        p1 = ResearchPipeline(store=self.store, source_retriever=failing)
+        first = p1.run("Analyze NVDA")
+        self.assertEqual(first.state, "failed")
+
+        def working(q, e):
+            return [{"url": "https://example.com/NVDA"}]
+
+        p2 = ResearchPipeline(store=self.store, source_retriever=working)
+        retried = p2.retry("Analyze NVDA")
+        self.assertIsNotNone(retried)
+        self.assertEqual(retried.state, "completed")
+        self.assertEqual(retried.attempts, 2)
+        states = [t.state for t in retried.history]
+        self.assertIn("failed", states)
+        self.assertIn("created", states)
+        self.assertEqual(states[-1], "completed")
+
+    def test_retry_of_completed_task_is_noop(self):
+        p = ResearchPipeline(store=self.store)
+        done = p.run("Analyze NVDA")
+        retried = p.retry("Analyze NVDA")
+        self.assertEqual(retried.attempts, 1)
+        self.assertEqual(retried.state, "completed")
+        self.assertEqual(retried.history, done.history)
+
+    def test_retry_of_missing_task_returns_none(self):
+        p = ResearchPipeline(store=self.store)
+        self.assertIsNone(p.retry("never seen"))
+
+    def test_audit_timeline_records_every_stage(self):
+        p = ResearchPipeline(store=self.store)
+        task = p.run("Analyze NVDA")
+        states = [t.state for t in task.history]
+        for expected in (
+            "discovering", "retrieving", "validating", "processing",
+            "analyzing", "completed",
+        ):
+            self.assertIn(expected, states)
+        self.assertTrue(all(t.at for t in task.history))
+
+    def test_failure_records_error_in_timeline(self):
+        p = ResearchPipeline(store=self.store)
+        task = p.run("Analyze the market today")
+        self.assertEqual(task.state, "failed")
+        self.assertTrue(any(t.note for t in task.history))
+
+
 if __name__ == "__main__":
     unittest.main()

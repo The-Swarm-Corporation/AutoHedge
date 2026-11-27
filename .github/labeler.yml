@@ -6,37 +6,32 @@ root:
 - changed-files:
   - any-glob-to-any-file: '*'
 
-# Add 'Documentation' label to any changes within 'docs' folder or any subfolders
+# Add 'Documentation' label for docs/, guides/ and any Markdown file.
+# NOTE: a single key must not be repeated in YAML — earlier definitions were
+# silently discarded by the parser, so all patterns are consolidated here.
 Documentation:
 - changed-files:
-  - any-glob-to-any-file: docs/**
+  - any-glob-to-any-file:
+    - docs/**
+    - guides/**
+    - '**/*.md'
 
-# Add 'Tests' label to any file changes within 'docs' folder
+# Add 'Tests' label to any file changes within tests/
 Tests:
 - changed-files:
   - any-glob-to-any-file: tests/*
 
-# Add 'Documentation' label to any file changes within 'docs' or 'guides' folders
+# Add 'ghactions' label to workflow and workflow-adjacent changes
 ghactions:
 - changed-files:
   - any-glob-to-any-file:
     - .github/workflows/*
     - .github/*
 
-# Add 'Scripts' label to any file changes within 'docs' folder
+# Add 'Scripts' label to any file changes within scripts/
 Scripts:
 - changed-files:
   - any-glob-to-any-file: scripts/*
-  
-## Equivalent of the above mentioned configuration using another syntax
-Documentation:
-- changed-files:
-  - any-glob-to-any-file: ['docs/*', 'guides/*']
-
-# Add 'Documentation' label to any change to .md files within the entire repository 
-Documentation:
-- changed-files:
-  - any-glob-to-any-file: '**/*.md'
 
 # Add 'source' label to any change to src files within the source dir EXCEPT for the docs sub-folder
 source:
