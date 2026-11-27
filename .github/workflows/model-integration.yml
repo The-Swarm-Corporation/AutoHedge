@@ -1,0 +1,24 @@
+# Focused Qwen2.5 model integration CI.
+# All inference is mocked; no API keys, paid services or network calls.
+name: Model integration (Qwen2.5)
+
+on:
+  workflow_call:
+  push:
+    branches: [main, 'feature/research-pipeline-ci-refactor']
+  pull_request:
+
+jobs:
+  qwen-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install --no-cache-dir -r requirements-dev.txt
+      - name: Qwen integration tests (mocked inference)
+        run: python -m pytest tests/test_qwen.py -v
+      - name: Research pipeline tests (mocked inference)
+        run: python -m pytest tests/test_research_pipeline.py -v

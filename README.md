@@ -1,9 +1,9 @@
-# AutoHedge
+# Market Mind AI
 
 [![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/VapjxpSyHC3) [![Subscribe on YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/@kyegomez3242) [![Connect on LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/kye-g-38759a207/) [![Follow on X.com](https://img.shields.io/badge/X.com-Follow-1DA1F2?style=for-the-badge&logo=x&logoColor=white)](https://x.com/swarms_corp)
 
 
-AutoHedge is an enterprise-grade autonomous agent hedge fund that trades on your behalf. It combines swarm intelligence and specialized AI agents to perform end-to-end market analysis, risk management, and execution with minimal human intervention.
+Market Mind AI is an enterprise-grade autonomous agent hedge fund that trades on your behalf. It combines swarm intelligence and specialized AI agents to perform end-to-end market analysis, risk management, and execution with minimal human intervention.
 
 **Current support:** Full autonomous trading on Solana. **Coming soon:** Coinbase and additional exchanges.
 
@@ -11,7 +11,7 @@ AutoHedge is an enterprise-grade autonomous agent hedge fund that trades on your
 
 ## Overview
 
-AutoHedge is built to be the world's most powerful autonomous agent hedge fund. It runs continuous analysis, generates and validates trading theses, sizes risk, and executes orders across supported venues. The system is designed for institutional reliability: structured outputs, comprehensive logging, and a risk-first architecture that scales from single strategies to multi-venue, multi-asset deployment.
+Market Mind AI is built to be the world's most powerful autonomous agent hedge fund. It runs continuous analysis, generates and validates trading theses, sizes risk, and executes orders across supported venues. The system is designed for institutional reliability: structured outputs, comprehensive logging, and a risk-first architecture that scales from single strategies to multi-venue, multi-asset deployment.
 
 ---
 
@@ -31,6 +31,35 @@ AutoHedge is built to be the world's most powerful autonomous agent hedge fund. 
 
 ---
 
+# Qwen2.5-1.5B Instruct (OpenCode v2 compatible)
+
+Market Mind AI supports Qwen2.5-1.5B Instruct as an alternative to the
+default OpenAI-backed swarms agents. Set `QWEN_API_KEY` in `.env` to enable
+Qwen; when unset, agents fall back to the default OpenAI models
+(`gpt-4o-mini` / `gpt-4.1`).
+
+```bash
+# Qwen2.5-1.5B Instruct (OpenCode v2 compatible)
+QWEN_API_KEY=your-qwen-token
+QWEN_API_BASE=https://dashscope.aliyuncs.com/api/v1
+QWEN_MODEL=qwen2.5-1.5b-instruct
+QWEN_TIMEOUT=30
+QWEN_MAX_TOKENS=4096
+QWEN_TEMPERATURE=0.7
+```
+
+All Qwen configuration is read from environment variables — no credentials or
+endpoints are hardcoded. Qwen is used for research / analysis only; it never
+connects to brokers or submits orders. The client validates configuration,
+probes availability, rejects empty requests, and validates structured
+research output (`summary`, `sentiment`, `confidence` 0–1). When no key is
+set, inference is skipped and findings are marked `unavailable`.
+
+For the full research-only workflow (task creation → discovery → source
+retrieval → validation → processing → model analysis → persistence →
+completion/failure), see [docs/research-pipeline.md](docs/research-pipeline.md).
+All model-inference tests use mocks; no test claims real Qwen inference.
+
 ## Supported Venues
 
 | Venue      | Status        | Notes                    |
@@ -46,38 +75,66 @@ AutoHedge is built to be the world's most powerful autonomous agent hedge fund. 
 ### Installation
 
 ```bash
-pip install -U autohedge
+pip install -U market-mind-ai
 ```
 
 ### Environment Variables
 
 ```bash
-# Jupiter API (token price & search tools)
+# Jupiter API (token price, search and Ultra swap tools)
 # Get a key at https://portal.jup.ag
 JUPITER_API_KEY=
 
-# OpenAI (experimental agents)
+# OpenAI / Anthropic (agents)
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 WORKSPACE_DIR="agent_workspace"
 
-# Trading
-WALLET_PRIVATE_KEY=""
+# News research (Exa) and stock data (Massive)
+EXA_API_KEY=
+MASSIVE_API_KEY=
+
+# Trading: base58-encoded Solana private key used to sign Jupiter swaps
+SOLANA_PRIVATE_KEY=""
 ```
 
-See `.env.example` for a full reference.
+See `.env.example` for a full reference. `WALLET_PRIVATE_KEY` is accepted as a
+backwards-compatible alias for `SOLANA_PRIVATE_KEY`.
 
 ### Basic Usage
 
-```python
-autohedge 
+```bash
+market-mind-ai          # interactive REPL (research only by default)
 ```
+
+```python
+from market_mind_ai import MarketMindAI
+
+system = MarketMindAI()                       # safe defaults: no live trading
+result = system.run("Analyze NVDA for a 50k allocation")
+print(system.last_result)                  # typed CycleResult
+```
+
+The pipeline is explicit: director (ticker discovery) → sentiment → quant →
+risk → execution (order proposal) → director (final decision). Every stage
+emits JSON validated against the Pydantic contracts in `market_mind_ai/models.py`.
+
+**Live trading is opt-in.** Attaching the Jupiter execution tools and
+submitting signed transactions both require explicit flags:
+
+```python
+MarketMindAI(enable_trading=True, dry_run=True)   # tools attached, no submission
+MarketMindAI(enable_trading=True, dry_run=False)  # actually submits swaps
+```
+
+Only decisions with a complete `input_mint` / `output_mint` / `amount` and an
+action of BUY or SELL are submitted; everything else stays a proposal.
 
 ---
 
 ## Architecture
 
-AutoHedge uses a multi-agent pipeline where each agent has a defined responsibility:
+Market Mind AI uses a multi-agent pipeline where each agent has a defined responsibility:
 
 ```mermaid
 graph TD
@@ -120,4 +177,4 @@ MIT License. See [LICENSE](LICENSE) for details.
 
 ---
 
-AutoHedge by [The Swarm Corporation](https://github.com/The-Swarm-Corporation)
+Market Mind AI by [The Swarm Corporation](https://github.com/The-Swarm-Corporation)

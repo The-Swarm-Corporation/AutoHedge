@@ -1,0 +1,28 @@
+# Research pipeline CI: workflow, contracts, failure regressions and API.
+# Uses only local mocks and temporary directories; no external services.
+name: Research pipeline CI
+
+on:
+  workflow_call:
+  push:
+    branches: [main, 'feature/research-pipeline-ci-refactor']
+  pull_request:
+
+jobs:
+  research-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install --no-cache-dir -r requirements-dev.txt
+      - name: Pipeline and API contract tests
+        run: python -m pytest tests/test_research_pipeline.py tests/test_pipeline.py tests/test_models.py -v
+      - name: Full suite
+        run: python -m pytest tests/ -v
+      - name: Lint and type check
+        run: |
+          ruff check market_mind_ai tests
+          mypy market_mind_ai --ignore-missing-imports

@@ -1,0 +1,19 @@
+site_name: Market Mind AI
+site_description: Autonomous multi-agent trading research and execution framework
+repo_url: https://github.com/The-Swarm-Corporation/AutoHedge
+
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Research Pipeline: research-pipeline.md
+  - Maintainer Actions: maintainer-actions.md
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - fenced_code

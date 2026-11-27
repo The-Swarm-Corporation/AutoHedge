@@ -21,13 +21,13 @@ jobs:
         python-version: '3.10'
 
     - name: Install dependencies
-      run: pip install --no-cache-dir -r requirements.txt
+      run: pip install --no-cache-dir -r requirements-dev.txt
 
     - name: Run Python unit tests
-      run: python3 -m unittest tests/
+      run: python -m unittest discover -s tests -v
 
-    - name: Verify that the Docker image for the action builds
-      run: docker build . --file Dockerfile
+    - name: Verify that the Docker image builds
+      run: docker build -t market-mind-ai:test . --file Dockerfile
 
-    - name: Verify integration test results
-      run: python3 -m unittest tests/
+    - name: Re-run tests inside the built image
+      run: docker run --rm market-mind-ai:test python -m unittest discover -s tests -v

@@ -2,41 +2,57 @@ name: Continuous Integration
 
 on:
   push:
-    branches:
-      - main
+    branches: [main, 'feature/research-pipeline-ci-refactor']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  test:
+  # Reusable stage: environment + dependency verification.
+  setup:
+    uses: ./.github/workflows/_python-setup.yml
+    with:
+      python-version: '3.10'
+
+  unit-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: pip install --no-cache-dir -r requirements-dev.txt
+      - name: Run unit tests
+        run: python -m pytest tests/ -v
+
+  # Reusable stage: Qwen2.5 model integration (fully mocked inference).
+  model-integration:
+    uses: ./.github/workflows/model-integration.yml
+
+  # Reusable stage: research pipeline, contracts and failure regressions.
+  research-pipeline:
+    uses: ./.github/workflows/research-pipeline.yml
+
+  quality:
+    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
       - name: Install dependencies
-        run: pip install --no-cache-dir -r requirements.txt
-
-      - name: Run unit tests
-        run: pytest tests/unit
-
-      - name: Run integration tests
-        run: pytest tests/integration
-
-      - name: Run code coverage
-        run: pytest --cov=swarms tests/
-
-      - name: Run linters
-        run: pylint swarms
-
-      - name: Build documentation
-        run: make docs
-
-      - name: Validate documentation
-        run: sphinx-build -b linkcheck docs build/docs
-
-      - name: Run performance tests
-        run: pytest tests/performance
+        run: pip install --no-cache-dir -r requirements-dev.txt
+      - name: Lint
+        run: ruff check market_mind_ai tests
+      - name: Type check
+        run: mypy market_mind_ai --ignore-missing-imports
+      - name: Coverage
+        run: pytest --cov=market_mind_ai tests/

@@ -3,9 +3,9 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "autohedge"
+name = "market-mind-ai"
 version = "0.1.5"
-description = "autohedge - TGSC"
+description = "market-mind-ai - TGSC"
 license = "MIT"
 authors = ["Kye Gomez <kye@apac.ai>"]
 homepage = "https://github.com/The-Swarm-Corporation/AutoHedge"
@@ -18,11 +18,11 @@ classifiers = [
     "Intended Audience :: Developers",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.9"
+    "Programming Language :: Python :: 3.10"
 ]
 
 [tool.poetry.scripts]
-autohedge = "autohedge.cli:main"
+market-mind-ai = "market_mind_ai.cli:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -35,6 +35,8 @@ httpx = "*"
 solders = "*"
 yfinance = "*"
 python-dotenv = "*"
+# Used by market_mind_ai/tools/yahoo_api.py; must match requirements.txt.
+requests = "*"
 
 
 [tool.poetry.group.lint.dependencies]
@@ -57,6 +59,9 @@ aggressive = 3
 
 [tool.ruff]
 line-length = 70
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
 
 [tool.black]
 line-length = 70

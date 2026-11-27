@@ -1,0 +1,27 @@
+# Reusable workflow: set up Python and install dev dependencies.
+# Called by ci.yml and the focused test workflows. No secrets required.
+name: Reusable Python setup
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: Python version to install
+        required: false
+        type: string
+        default: '3.10'
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install dependencies
+        run: pip install --no-cache-dir -r requirements-dev.txt
+      - name: Verify installation
+        run: python -c "import market_mind_ai, pytest, ruff, mypy"

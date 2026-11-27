@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Override</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body class="bg-zinc-900 text-orange-500 font-mono w-full h-screen overflow-hidden relative select-none flex items-center justify-center">
+
+    <!-- Aura Asset Background Image (Subtle) -->
+    <div class="absolute inset-0 z-[-1] opacity-30 mix-blend-screen bg-cover bg-center" style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/fa51902b-c2a4-4c33-a96e-a8f1ef67edc6_1600w.jpg');"></div>
+
+    <!-- Dither / Noise Overlay -->
+    <div class="pointer-events-none absolute inset-0 z-50 opacity-[0.06] mix-blend-screen" style="background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox=%220 0 2 2%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Crect width=%221%22 height=%221%22 fill=%22%23f97316%22/%3E%3Crect x=%221%22 y=%221%22 width=%221%22 height=%221%22 fill=%22%23f97316%22/%3E%3C/svg%3E'); background-size: 2px 2px;"></div>
+
+    <!-- WebGL-style Block by Block Animation Canvas -->
+    <canvas id="grid-canvas" class="absolute inset-0 z-0 opacity-50" aria-hidden="true"></canvas>
+
+    <!-- Viewport Corner Markers -->
+    <div class="absolute top-4 left-4 w-4 h-4 border-t border-l border-orange-500/50 z-10"></div>
+    <div class="absolute top-4 right-4 w-4 h-4 border-t border-r border-orange-500/50 z-10"></div>
+    <div class="absolute bottom-4 left-4 w-4 h-4 border-b border-l border-orange-500/50 z-10"></div>
+    <div class="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-orange-500/50 z-10"></div>
+
+    <!-- Background Telemetry Text -->
+    <div class="absolute top-8 left-8 text-xs font-thin opacity-60 tracking-widest flex flex-col gap-1 z-10 hidden sm:flex">
+        <span>SYNC_PHASE: <span id="log-frame">000000</span></span>
+        <span>SYS_OVERRIDE_SEQ: [ ACTIVE ]</span>
+        <span>ROUTE_MAP: TRACING</span>
+        <span>CRIT_ALERT:</span>
+        <span class="text-orange-600 animate-pulse">> ERR_TIMEOUT</span>
+        <span id="typewriter" class="text-orange-400"></span>
+    </div>
+
+    <div class="absolute bottom-8 right-8 text-xs font-thin opacity-60 tracking-widest text-right z-10 hidden sm:block">
+        <span id="log-mem">REG_ADDR: 0xFA48B2</span><br>
+        <span>STATE: OVERRIDING</span>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="relative z-20 w-full max-w-5xl h-full flex items-center justify-center px-4 sm:px-16">
+        
+        <!-- Container Lines & Mini Squares -->
+        <div class="absolute inset-y-12 left-8 w-px bg-gradient-to-b from-transparent via-orange-500/30 to-transparent hidden sm:block"></div>
+        <div class="absolute inset-y-12 right-8 w-px bg-gradient-to-b from-transparent via-orange-500/30 to-transparent hidden sm:block"></div>
+        <div class="absolute top-1/4 left-[30px] w-1.5 h-1.5 border border-orange-500/80 hidden sm:block"></div>
+        <div class="absolute bottom-1/4 left-[30px] w-1.5 h-1.5 border border-orange-500/80 hidden sm:block"></div>
+        <div class="absolute top-1/3 right-[30px] w-1.5 h-1.5 border border-orange-500/80 hidden sm:block"></div>
+        <div class="absolute bottom-1/3 right-[30px] w-1.5 h-1.5 border border-orange-500/80 hidden sm:block"></div>
+
+        <!-- The Main Orange Block (Gradient Border for Premium Surface) -->
+        <div class="p-[1px] bg-gradient-to-br from-orange-300 via-orange-600/70 to-orange-900/40 relative w-full shadow-[0_0_50px_rgba(249,115,22,0.15)]">
+            
+            <div class="relative w-full h-40 sm:h-48 bg-[#f97316] flex items-center transition-all duration-100">
+                
+                <!-- Top Left Tab -->
+                <div class="absolute -top-6 left-0 h-6 w-24 bg-[#f97316] flex items-center justify-between px-2 text-xs font-normal text-zinc-800 tracking-widest border-b border-zinc-800">
+                    <span>TIMEOUT</span>
+                    <div class="w-1.5 h-1.5 bg-zinc-800"></div>
+                </div>
+
+                <!-- Right Edge Extrusions & Cutouts -->
+                <div class="absolute -top-3 right-0 h-3 w-10 sm:w-16 bg-[#f97316]">
+                    <div class="absolute top-1 right-1 w-1 h-1 bg-zinc-800"></div>
+                </div>
+                <div class="absolute -bottom-3 right-0 h-3 w-10 sm:w-16 bg-[#f97316]">
+                    <div class="absolute bottom-1 right-1 w-1 h-1 bg-zinc-800"></div>
+                </div>
+
+                <!-- Left Edge Middle Cutout -->
+                <div class="absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-4 bg-zinc-800 border-r border-[#f97316]/50"></div>
+                <!-- Right Edge Middle Cutout -->
+                <div class="absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-6 bg-zinc-800"></div>
+
+                <!-- Inner Layout -->
+                <div class="flex w-full h-full px-4 sm:px-8">
+                    
+                    <!-- Left Section: Warning & Text -->
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-center gap-4 sm:gap-6 w-full sm:w-1/2 border-zinc-800/30 sm:border-r pr-0 sm:pr-6 relative gs-reveal-container">
+                        <!-- Subtle animated background highlight in left section -->
+                        <div class="absolute inset-0 bg-white/5 opacity-0 animate-[pulse_4s_ease-in-out_infinite]" style="animation-direction: alternate;"></div>
+                        
+                        <iconify-icon icon="solar:round-transfer-horizontal-linear" class="text-zinc-800 text-5xl sm:text-7xl shrink-0 animate-spin-slow relative z-10" style="stroke-width: 1.5px; animation: spin 4s linear infinite;"></iconify-icon>
+                        <div class="flex flex-col relative z-10 pt-1">
+                            <h1 class="text-zinc-800 text-3xl sm:text-5xl font-light tracking-tight leading-[0.85] uppercase overflow-hidden pb-1">
+                                <span class="block gs-reveal">System</span>
+                            </h1>
+                            <h2 class="text-zinc-800 text-3xl sm:text-5xl font-thin tracking-tight leading-[0.85] uppercase mt-1 overflow-hidden pb-1">
+                                <span class="block gs-reveal">Override</span>
+                            </h2>
+                        </div>
+                    </div>
+
+                    <!-- Right Section: Data Matrix -->
+                    <div class="hidden sm:flex flex-1 relative items-center justify-end pl-6">
+                        <!-- Crosshairs / Guides -->
+                        <div class="absolute inset-x-6 top-1/2 h-px bg-zinc-800/20 -translate-y-1/2"></div>
+                        <div class="absolute inset-y-8 right-32 w-px bg-zinc-800/20"></div>
+                        <div class="absolute inset-y-8 right-12 w-px bg-zinc-800/20"></div>
+
+                        <!-- Data Grid Blocks -->
+                        <div class="flex gap-4 sm:gap-6 relative z-10">
+                            <!-- Block Group 1 -->
+                            <div class="grid grid-cols-2 gap-1.5 h-fit">
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                            </div>
+                            
+                            <!-- Block Group 2 (Offset) -->
+                            <div class="grid grid-cols-2 gap-1.5 h-fit mt-8">
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)] opacity-20 animate-pulse"></div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                            </div>
+
+                            <div class="w-2"></div>
+
+                            <!-- Block Group 3 (Top aligned, missing piece blinking to suggest retry) -->
+                            <div class="grid grid-cols-2 gap-1.5 h-fit">
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                                <div class="w-5 h-5 bg-transparent border border-zinc-800 relative animate-pulse">
+                                    <div class="absolute inset-x-1 top-1/2 h-px bg-zinc-800"></div>
+                                    <div class="absolute inset-y-1 left-1/2 w-px bg-zinc-800"></div>
+                                </div>
+                                <div class="w-5 h-5 bg-zinc-800 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.2)]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Left Micro Details -->
+                <div class="absolute bottom-2 left-4 flex gap-2 items-center text-zinc-800">
+                    <iconify-icon icon="solar:server-square-linear" class="text-lg opacity-80" style="stroke-width: 1.5px;"></iconify-icon>
+                    <div class="flex flex-col">
+                        <span class="text-xs tracking-widest opacity-80 uppercase font-light leading-none">AUTH_NODE // ACCESS DENIED</span>
+                        <span class="text-xs tracking-widest opacity-60 uppercase font-thin mt-1">EXECUTING BYPASS PROTOCOL...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // GSAP ScrollTrigger Masked Reveal
+        gsap.registerPlugin(ScrollTrigger);
+        gsap.from(".gs-reveal", {
+            y: "120%",
+            duration: 1.2,
+            stagger: 0.15,
+            ease: "power4.out",
+            scrollTrigger: {
+                trigger: ".gs-reveal-container",
+                start: "top 95%",
+            }
+        });
+
+        // WebGL-style Block by Block Animation (Simulated in 2D for constraints)
+        const canvas = document.getElementById('grid-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, time = 0;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            time += 0.04;
+
+            const blockSize = 48;
+            const blockGap = 2;
+            const pitch = blockSize + blockGap;
+            const cols = Math.ceil(width / pitch);
+            const rows = Math.ceil(height / pitch);
+
+            const centerX = cols / 2;
+            const centerY = rows / 2;
+
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < rows; j++) {
+                    const dist = Math.sqrt(Math.pow(i - centerX, 2) + Math.pow(j - centerY, 2));
+                    const wave = Math.sin(time - dist * 0.4);
+                    
+                    if (wave > 0) {
+                        const alpha = wave * 0.15; 
+                        ctx.fillStyle = `rgba(249, 115, 22, ${alpha})`;
+                        
+                        // Block scaling for "Z-depth" pulsing feel
+                        const scale = wave * 0.7 + 0.3;
+                        const size = blockSize * scale;
+                        const offset = (pitch - size) / 2;
+                        
+                        ctx.fillRect(i * pitch + offset, j * pitch + offset, size, size);
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        // Simulate telemetry data updates
+        setInterval(() => {
+            const frameLog = document.getElementById('log-frame');
+            const memLog = document.getElementById('log-mem');
+            if (frameLog) frameLog.innerText = Math.floor(Math.random() * 999999).toString().padStart(6, '0');
+            if (memLog) {
+                const hex = Math.floor(Math.random() * 16777215).toString(16).toUpperCase();
+                memLog.innerText = `REG_ADDR: 0x${hex}`;
+            }
+        }, 150);
+
+        // Typewriter Animation Logic
+        const typewriterElement = document.getElementById('typewriter');
+        if (typewriterElement) {
+            const phrases = ["> INITIATING BYPASS...", "> FLUSHING REGISTERS...", "> TIMEOUT: RETRYING..."];
+            let phraseIdx = 0;
+            let charIdx = 0;
+            let isDeleting = false;
+            
+            function type() {
+                const currentPhrase = phrases[phraseIdx];
+                if (isDeleting) {
+                    charIdx--;
+                } else {
+                    charIdx++;
+                }
+                
+                typewriterElement.innerText = currentPhrase.substring(0, charIdx) + "_";
+                
+                let speed = isDeleting ? 30 : 60;
+                
+                if (!isDeleting && charIdx === currentPhrase.length) {
+                    speed = 2000;
+                    isDeleting = true;
+                } else if (isDeleting && charIdx === 0) {
+                    isDeleting = false;
+                    phraseIdx = (phraseIdx + 1) % phrases.length;
+                    speed = 500;
+                }
+                
+                setTimeout(type, speed);
+            }
+            type();
+        }
+    </script>
+</body>
+</html>

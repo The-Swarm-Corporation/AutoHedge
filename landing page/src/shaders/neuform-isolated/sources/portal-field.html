@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEON // Portal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body style="
+    --bg-base: #020202; 
+    --bg-surface-1: rgba(255, 255, 255, 0.015); 
+    --bg-surface-2: rgba(255, 255, 255, 0.04); 
+    --bg-surface-3: rgba(255, 255, 255, 0.08);
+    --text-primary: #F4F4F5; 
+    --text-secondary: #A3A3A3; 
+    --text-accent: #020202; 
+    --text-tech: #666666;
+    --bg-accent: #F4F4F5; 
+    --bg-accent-active: #22C55E;
+    --border-glow: rgba(255, 255, 255, 0.08);
+    --glow-color: 255, 255, 255;
+    background-color: var(--bg-base); 
+    color: var(--text-primary);
+    transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+" class="font-['Inter'] min-h-screen overflow-hidden flex items-center justify-center antialiased selection:bg-[var(--bg-surface-3)] selection:text-[var(--text-primary)]">
+
+    <!-- Ambient Background -->
+    <div id="webgl-container" class="absolute inset-0 z-0 pointer-events-none opacity-80 mix-blend-screen"></div>
+
+    <!-- Structural Framing -->
+    <div class="fixed inset-4 lg:inset-8 pointer-events-none z-0 border border-[var(--border-glow)] hidden lg:block transition-colors duration-700">
+        <!-- Corner Registration Marks -->
+        <div class="absolute -top-[1px] -left-[1px] w-3 h-3 border-t border-l border-[var(--text-secondary)] transition-colors duration-500"></div>
+        <div class="absolute -top-[1px] -right-[1px] w-3 h-3 border-t border-r border-[var(--text-secondary)] transition-colors duration-500"></div>
+        <div class="absolute -bottom-[1px] -left-[1px] w-3 h-3 border-b border-l border-[var(--text-secondary)] transition-colors duration-500"></div>
+        <div class="absolute -bottom-[1px] -right-[1px] w-3 h-3 border-b border-r border-[var(--text-secondary)] transition-colors duration-500"></div>
+        
+        <!-- Precision Grid Lines -->
+        <div class="absolute top-0 bottom-0 left-1/3 w-[1px] bg-gradient-to-b from-transparent via-[var(--border-glow)] to-transparent opacity-20"></div>
+        <div class="absolute top-1/2 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--border-glow)] to-transparent opacity-10"></div>
+    </div>
+
+    <!-- Interface Controls -->
+    <div class="absolute top-6 lg:top-12 right-6 lg:right-12 z-20 flex items-center gap-6">
+        <div class="font-['JetBrains_Mono'] text-xs text-[var(--text-tech)] tracking-widest uppercase transition-colors duration-500 hidden sm:block">SYS-2.9</div>
+        <button id="themeToggleBtn" class="h-8 px-4 border border-[var(--border-glow)] bg-[var(--bg-surface-1)] hover:bg-[var(--bg-surface-2)] text-[var(--text-primary)] backdrop-blur-md flex items-center gap-2 transition-all duration-300 text-xs font-light tracking-wide rounded-sm">
+            <iconify-icon id="themeIcon" icon="solar:moon-linear" stroke-width="1.5" class="text-sm"></iconify-icon>
+            <span id="themeText">DARK</span>
+        </button>
+    </div>
+
+    <!-- Metadata Labels -->
+    <div class="absolute top-12 left-8 lg:top-16 lg:left-16 z-10 font-['JetBrains_Mono'] text-xs tracking-widest text-[var(--text-tech)] uppercase transition-colors duration-500 hidden sm:block">
+        NEURAL.NET // ACTIVE
+    </div>
+    <div style="transform: translateY(-50%) rotate(90deg); transform-origin: center right;" class="absolute top-1/2 right-8 lg:right-12 z-10 font-['JetBrains_Mono'] text-xs tracking-widest text-[var(--text-tech)] uppercase flex items-center gap-4 transition-colors duration-500 hidden xl:flex">
+        <span class="opacity-40">[</span>
+        <span>PRT</span>
+        <span class="opacity-40">=</span>
+        <span>ECHO-9</span>
+        <span class="opacity-40">]</span>
+    </div>
+
+    <!-- Remixed Layout: Typographic Hero + Interactive Section -->
+    <div class="relative z-10 w-full max-w-[1440px] min-h-screen flex flex-col lg:flex-row items-center justify-center lg:justify-between px-6 lg:px-24 py-24 gap-16 lg:gap-8">
+        
+        <!-- Hero Section -->
+        <div class="w-full lg:w-1/2 flex flex-col gap-6 lg:pr-12">
+            <div class="font-['JetBrains_Mono'] text-xs text-[var(--text-secondary)] tracking-widest uppercase flex items-center gap-3">
+                <div class="w-1.5 h-1.5 rounded-full bg-[var(--bg-accent-active)] animate-pulse"></div>
+                <span class="block overflow-hidden"><span class="block masked-word translate-y-full opacity-0">Authorization Pending</span></span>
+            </div>
+            
+            <h1 class="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl tracking-tighter font-extralight leading-[0.95] text-[var(--text-primary)] uppercase">
+                <span class="block overflow-hidden pb-2"><span class="block masked-word translate-y-full opacity-0">Establish</span></span>
+                <span class="block overflow-hidden pb-2"><span class="block masked-word translate-y-full opacity-0">Connection</span></span>
+            </h1>
+            
+            <p class="text-sm lg:text-base font-extralight text-[var(--text-secondary)] leading-relaxed max-w-md mt-4">
+                <span class="block overflow-hidden"><span class="block masked-word translate-y-full opacity-0">Restricted network sector. Verify your identity via biometric uplink to access the centralized mainframe and quantum datasets.</span></span>
+            </p>
+        </div>
+
+        <!-- Second Section (Interactive Card) -->
+        <div class="w-full max-w-[420px] lg:w-1/2 flex justify-center lg:justify-end">
+            
+            <!-- Structural Shell with Gradient Border -->
+            <div class="relative w-full rounded-sm p-[1px] bg-gradient-to-br from-[var(--border-glow)] via-transparent to-[var(--border-glow)] group">
+                
+                <div class="w-full rounded-sm bg-[var(--bg-surface-1)] backdrop-blur-2xl p-8 lg:p-10 flex flex-col gap-8 transition-colors duration-500 shadow-2xl shadow-black/40">
+                    
+                    <!-- Card Header -->
+                    <div class="flex flex-col gap-2">
+                        <div class="font-['JetBrains_Mono'] text-xs text-[var(--text-primary)] border border-[var(--border-glow)] bg-[var(--bg-surface-2)] px-3 py-1 self-start mb-2 tracking-widest uppercase rounded-sm transition-colors duration-500">IDENTITY.CHECK</div>
+                        <h2 class="text-2xl tracking-tight font-light text-[var(--text-primary)]">
+                            <span class="block overflow-hidden"><span class="block masked-word translate-y-full opacity-0">Authentication</span></span>
+                        </h2>
+                    </div>
+
+                    <!-- Alternate Methods Grid -->
+                    <div class="grid grid-cols-3 gap-3">
+                        <button class="h-12 rounded-sm bg-[var(--bg-surface-2)] hover:bg-[var(--text-primary)] text-[var(--text-primary)] hover:text-[var(--text-accent)] flex items-center justify-center transition-all duration-300 border border-[var(--border-glow)] group/btn" aria-label="Biometric Scan">
+                            <iconify-icon icon="solar:fingerprint-linear" stroke-width="1.5" class="text-xl transition-transform duration-300 group-hover/btn:scale-110"></iconify-icon>
+                        </button>
+                        <button class="h-12 rounded-sm bg-[var(--bg-surface-2)] hover:bg-[var(--text-primary)] text-[var(--text-primary)] hover:text-[var(--text-accent)] flex items-center justify-center transition-all duration-300 border border-[var(--border-glow)] group/btn" aria-label="Hardware Token">
+                            <iconify-icon icon="solar:smartphone-linear" stroke-width="1.5" class="text-xl transition-transform duration-300 group-hover/btn:scale-110"></iconify-icon>
+                        </button>
+                        <button class="h-12 rounded-sm bg-[var(--bg-surface-2)] hover:bg-[var(--text-primary)] text-[var(--text-primary)] hover:text-[var(--text-accent)] flex items-center justify-center transition-all duration-300 border border-[var(--border-glow)] group/btn" aria-label="Neural Passkey">
+                            <iconify-icon icon="solar:shield-keyhole-linear" stroke-width="1.5" class="text-xl transition-transform duration-300 group-hover/btn:scale-110"></iconify-icon>
+                        </button>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="flex items-center gap-4 text-[var(--text-tech)] font-['JetBrains_Mono'] text-xs tracking-widest uppercase">
+                        <div class="flex-1 h-[1px] bg-[var(--border-glow)] transition-colors duration-500"></div>
+                        <span>FALLBACK PROTOCOL</span>
+                        <div class="flex-1 h-[1px] bg-[var(--border-glow)] transition-colors duration-500"></div>
+                    </div>
+
+                    <!-- Input Fields -->
+                    <div class="flex flex-col gap-5">
+                        <div class="relative flex flex-col gap-2">
+                            <label class="font-['JetBrains_Mono'] text-xs font-light text-[var(--text-secondary)] uppercase tracking-widest transition-colors duration-500">AGENT_ALIAS</label>
+                            <input type="text" placeholder="agent.name@aeon.net" autocomplete="username" class="w-full px-4 h-12 border border-[var(--border-glow)] outline-none rounded-sm bg-[var(--bg-surface-1)] text-[var(--text-primary)] font-['Inter'] text-sm transition-all duration-300 focus:bg-[var(--bg-surface-2)] focus:border-[var(--text-secondary)] placeholder-[var(--text-tech)] font-light">
+                        </div>
+                        <div class="relative flex flex-col gap-2">
+                            <label class="font-['JetBrains_Mono'] text-xs font-light text-[var(--text-secondary)] uppercase tracking-widest transition-colors duration-500">ACCESS_CODE</label>
+                            <input type="password" placeholder="••••••••••••" autocomplete="current-password" class="w-full px-4 h-12 border border-[var(--border-glow)] outline-none rounded-sm bg-[var(--bg-surface-1)] text-[var(--text-primary)] font-['Inter'] text-sm transition-all duration-300 focus:bg-[var(--bg-surface-2)] focus:border-[var(--text-secondary)] placeholder-[var(--text-tech)] font-light">
+                        </div>
+                    </div>
+
+                    <!-- Primary Action -->
+                    <button class="h-14 mt-4 rounded-sm bg-[var(--bg-accent)] text-[var(--text-accent)] font-medium text-xs tracking-widest uppercase flex items-center justify-center gap-3 transition-all duration-500 hover:bg-[var(--bg-accent-active)] hover:text-white group/submit relative overflow-hidden">
+                        <span class="relative z-10 flex items-center gap-2">
+                            INITIATE LINK 
+                            <iconify-icon icon="solar:arrow-right-linear" stroke-width="1.5" class="text-base transition-transform duration-300 group-hover/submit:translate-x-1"></iconify-icon>
+                        </span>
+                    </button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GSAP Masked Reveal Directive
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.registerPlugin(ScrollTrigger);
+            
+            gsap.to(".masked-word", {
+                y: "0%",
+                opacity: 1,
+                duration: 1.2,
+                ease: "power4.out",
+                stagger: 0.1,
+                delay: 0.1
+            });
+        });
+
+        // Theme Toggling Logic
+        const body = document.body;
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.getElementById('themeText');
+        let isDark = true;
+
+        const themes = {
+            dark: {
+                '--bg-base': '#020202',
+                '--bg-surface-1': 'rgba(255, 255, 255, 0.015)',
+                '--bg-surface-2': 'rgba(255, 255, 255, 0.04)',
+                '--bg-surface-3': 'rgba(255, 255, 255, 0.08)',
+                '--text-primary': '#F4F4F5',
+                '--text-secondary': '#A3A3A3',
+                '--text-accent': '#020202',
+                '--text-tech': '#666666',
+                '--bg-accent': '#F4F4F5',
+                '--bg-accent-active': '#22C55E',
+                '--border-glow': 'rgba(255, 255, 255, 0.08)',
+                '--glow-color': '255, 255, 255',
+                shaderCore: '#FFFFFF',
+                shaderFringe: '#1e3a8a'
+            },
+            light: {
+                '--bg-base': '#F4F4F5',
+                '--bg-surface-1': 'rgba(0, 0, 0, 0.02)',
+                '--bg-surface-2': 'rgba(0, 0, 0, 0.05)',
+                '--bg-surface-3': 'rgba(0, 0, 0, 0.1)',
+                '--text-primary': '#020202',
+                '--text-secondary': '#666666',
+                '--text-accent': '#FFFFFF',
+                '--text-tech': '#A3A3A3',
+                '--bg-accent': '#020202',
+                '--bg-accent-active': '#16A34A',
+                '--border-glow': 'rgba(0, 0, 0, 0.08)',
+                '--glow-color': '0, 0, 0',
+                shaderCore: '#020202',
+                shaderFringe: '#94a3b8'
+            }
+        };
+
+        themeBtn.addEventListener('click', () => {
+            isDark = !isDark;
+            const currentTheme = isDark ? themes.dark : themes.light;
+
+            for (const [key, value] of Object.entries(currentTheme)) {
+                if (key.startsWith('--')) {
+                    body.style.setProperty(key, value);
+                }
+            }
+
+            if (isDark) {
+                themeIcon.setAttribute('icon', 'solar:moon-linear');
+                themeText.textContent = 'DARK';
+            } else {
+                themeIcon.setAttribute('icon', 'solar:sun-linear');
+                themeText.textContent = 'LIGHT';
+            }
+
+            if (typeof material !== 'undefined') {
+                material.uniforms.u_colorCore.value = new THREE.Color(currentTheme.shaderCore);
+                material.uniforms.u_colorFringe.value = new THREE.Color(currentTheme.shaderFringe);
+                material.uniforms.u_isLightMode.value = isDark ? 0.0 : 1.0;
+            }
+        });
+
+        // Ambient WebGL Background
+        const container = document.getElementById('webgl-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+        camera.position.z = 1;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        const geometry = new THREE.PlaneGeometry(2, 2);
+
+        const vertexShader = `
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                gl_Position = vec4(position, 1.0);
+            }
+        `;
+
+        const fragmentShader = `
+            uniform float u_time;
+            uniform vec2 u_resolution;
+            uniform vec2 u_mouse;
+            uniform vec3 u_colorCore;
+            uniform vec3 u_colorFringe;
+            uniform float u_isLightMode;
+            varying vec2 vUv;
+
+            vec2 hash( vec2 p ) {
+                p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
+                return -1.0 + 2.0*fract(sin(p)*43758.5453123);
+            }
+            float noise( in vec2 p ) {
+                const float K1 = 0.366025404;
+                const float K2 = 0.211324865;
+                vec2 i = floor( p + (p.x+p.y)*K1 );
+                vec2 a = p - i + (i.x+i.y)*K2;
+                vec2 o = (a.x>a.y) ? vec2(1.0,0.0) : vec2(0.0,1.0);
+                vec2 b = a - o + K2;
+                vec2 c = a - 1.0 + 2.0*K2;
+                vec3 h = max( 0.5-vec3(dot(a,a), dot(b,b), dot(c,c) ), 0.0 );
+                vec3 n = h*h*h*h*vec3( dot(a,hash(i+0.0)), dot(b,hash(i+o)), dot(c,hash(i+1.0)));
+                return dot( n, vec3(70.0) );
+            }
+
+            float sdArc(vec2 p, vec2 center, float radius, float width, float warp) {
+                p.y += sin(p.x * 2.0 + u_time * 0.3) * warp;
+                p.x += noise(p * 1.5 + u_time * 0.1) * (warp * 0.8);
+                float d = length(p - center) - radius;
+                return abs(d) - width;
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+                vec2 st = uv;
+                st.x *= u_resolution.x / u_resolution.y;
+                
+                vec2 mouseOffset = (u_mouse - 0.5) * 0.05;
+                st += mouseOffset;
+
+                // Center organic form behind the content area
+                vec2 center = vec2(0.5, 0.5);
+                
+                float d1 = sdArc(st, center, 0.6, 0.02, 0.15);
+                float d2 = sdArc(st, center, 0.65, 0.06, 0.2);
+                
+                float coreGlow = exp(-d1 * 30.0);
+                float fringeGlow = exp(-d2 * 10.0);
+                float wash = smoothstep(1.5, -0.5, length(st - center)) * 0.15;
+
+                vec3 finalColor = vec3(0.0);
+                finalColor += u_colorCore * coreGlow;
+                finalColor += u_colorFringe * fringeGlow;
+                finalColor += u_colorFringe * wash * (sin(u_time * 0.5) * 0.2 + 0.8);
+
+                float alpha = clamp(coreGlow + fringeGlow + wash, 0.0, 1.0);
+                finalColor = vec3(1.0) - exp(-finalColor * 1.5);
+                
+                if(u_isLightMode > 0.5) {
+                    alpha = clamp((coreGlow * 1.2 + fringeGlow + wash * 0.4), 0.0, 0.4);
+                }
+
+                gl_FragColor = vec4(finalColor, alpha * 0.6);
+            }
+        `;
+
+        const material = new THREE.ShaderMaterial({
+            vertexShader,
+            fragmentShader,
+            uniforms: {
+                u_time: { value: 0.0 },
+                u_resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+                u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
+                u_colorCore: { value: new THREE.Color(themes.dark.shaderCore) },
+                u_colorFringe: { value: new THREE.Color(themes.dark.shaderFringe) },
+                u_isLightMode: { value: 0.0 }
+            },
+            transparent: true,
+            blending: THREE.AdditiveBlending 
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+
+        let targetMouse = new THREE.Vector2(0.5, 0.5);
+        document.addEventListener('mousemove', (e) => {
+            targetMouse.x = e.clientX / window.innerWidth;
+            targetMouse.y = 1.0 - (e.clientY / window.innerHeight); 
+        });
+
+        const clock = new THREE.Clock();
+        function animate() {
+            requestAnimationFrame(animate);
+            material.uniforms.u_time.value = clock.getElapsedTime();
+            material.uniforms.u_mouse.value.lerp(targetMouse, 0.03);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            material.uniforms.u_resolution.value.set(width, height);
+        });
+    </script>
+</body>
+</html>

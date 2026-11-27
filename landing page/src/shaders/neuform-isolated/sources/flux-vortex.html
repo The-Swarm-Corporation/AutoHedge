@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Flux</title>
+    
+    <!-- Tailwind & Iconify -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- GSAP Core & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body class="bg-[#050505] text-white selection:bg-white selection:text-black font-extralight overflow-x-hidden relative" style="font-family: 'Space Grotesk', sans-serif;">
+
+    <!-- Loading Overlay -->
+    <div id="loader" class="fixed inset-0 z-50 flex items-center justify-center bg-[#050505] transition-opacity duration-1000">
+        <div class="flex flex-col items-center gap-4">
+            <div class="h-px w-24 bg-neutral-800 overflow-hidden relative">
+                <div id="shimmer-bar" class="absolute inset-y-0 left-0 bg-white w-full -translate-x-full"></div>
+            </div>
+            <p class="text-xs uppercase tracking-[0.2em] text-neutral-500 font-light">
+                Booting Sequence
+            </p>
+        </div>
+    </div>
+
+    <!-- 3D Canvas Container -->
+    <div class="fixed inset-0 z-0">
+        <canvas id="webgl-canvas" class="w-full h-full outline-none cursor-auto"></canvas>
+    </div>
+
+    <!-- Container Lines & Corner Squares -->
+    <div class="fixed inset-y-6 inset-x-6 md:inset-y-12 md:inset-x-12 border-x border-white/10 pointer-events-none z-10 flex flex-col justify-between">
+        <!-- Top Left -->
+        <div class="absolute top-0 -translate-y-1/2 -left-[3px] w-1.5 h-1.5 bg-neutral-900 border border-neutral-500 rounded-none"></div>
+        <!-- Top Right -->
+        <div class="absolute top-0 -translate-y-1/2 -right-[3px] w-1.5 h-1.5 bg-neutral-900 border border-neutral-500 rounded-none"></div>
+        <!-- Bottom Left -->
+        <div class="absolute bottom-0 translate-y-1/2 -left-[3px] w-1.5 h-1.5 bg-neutral-900 border border-neutral-500 rounded-none"></div>
+        <!-- Bottom Right -->
+        <div class="absolute bottom-0 translate-y-1/2 -right-[3px] w-1.5 h-1.5 bg-neutral-900 border border-neutral-500 rounded-none"></div>
+    </div>
+
+    <!-- Scrollable UI Overlay -->
+    <div class="relative z-20 flex flex-col min-h-[160vh] pointer-events-none">
+        
+        <!-- Fixed Navigation -->
+        <header class="fixed top-6 md:top-12 left-6 right-6 md:left-12 md:right-12 px-6 py-6 flex justify-between items-center pointer-events-auto opacity-0 nav-item z-30">
+            <div class="flex items-center gap-3 group cursor-pointer">
+                <div class="w-8 h-8 rounded-none border border-neutral-800 flex items-center justify-center bg-[#050505] group-hover:border-neutral-400 transition-colors duration-300">
+                    <span class="font-light text-xs tracking-tighter text-white">Q</span>
+                </div>
+                <span class="text-xs font-light tracking-widest text-neutral-400 group-hover:text-white transition-colors uppercase glitch-target">
+                    Quantum
+                </span>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-10 px-8 py-3 rounded-none" style="background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(8px); border: 1px solid transparent; background-clip: padding-box, border-box; background-image: linear-gradient(#050505, #050505), linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 100%);">
+                <a href="#" class="uppercase tracking-widest text-neutral-500 hover:text-white transition-colors text-xs font-light">Topology</a>
+                <a href="#" class="uppercase tracking-widest text-neutral-500 hover:text-white transition-colors text-xs font-light">Matrix</a>
+                <a href="#" class="uppercase tracking-widest text-neutral-500 hover:text-white transition-colors text-xs font-light">Protocol</a>
+            </nav>
+
+            <button class="group flex items-center gap-3 px-5 py-2.5 rounded-none transition-all duration-300" style="background: linear-gradient(#050505, #050505) padding-box, linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05)) border-box; border: 1px solid transparent;">
+                <span class="text-xs font-light tracking-widest uppercase text-neutral-400 group-hover:text-white">Connect</span>
+                <iconify-icon icon="solar:arrow-right-linear" width="14" class="text-neutral-500 group-hover:text-white group-hover:translate-x-1 transition-all"></iconify-icon>
+            </button>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-grow flex flex-col pt-[35vh] pb-[40vh] px-12 md:px-24 pointer-events-none relative z-20 w-full max-w-6xl mx-auto scroll-trigger-area">
+            <div class="space-y-12">
+                <!-- Status Tagline -->
+                <div class="overflow-hidden">
+                    <div class="flex items-center gap-3 mask-word translate-y-full inline-flex">
+                        <span class="flex h-1.5 w-1.5 rounded-none bg-neutral-300 shadow-[0_0_8px_rgba(255,255,255,0.6)]"></span>
+                        <p class="text-xs uppercase tracking-[0.25em] text-neutral-400 font-extralight">
+                            Neural Node: Active
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Headline with Staggered Masked Reveal -->
+                <div class="max-w-4xl flex flex-wrap gap-x-6 gap-y-2">
+                    <span class="inline-block overflow-hidden pb-2"><span class="mask-word inline-block translate-y-[110%] text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tight leading-[1] text-white glitch-target">Dynamic</span></span>
+                    <span class="inline-block overflow-hidden pb-2"><span class="mask-word inline-block translate-y-[110%] text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tight leading-[1] text-white glitch-target">Resonance</span></span>
+                    <span class="inline-block overflow-hidden pb-2"><span class="mask-word inline-block translate-y-[110%] text-5xl md:text-7xl lg:text-8xl font-extralight tracking-tight leading-[1] text-transparent bg-clip-text bg-gradient-to-r from-neutral-400 to-neutral-700 glitch-target">Field.</span></span>
+                </div>
+
+                <!-- Description -->
+                <div class="overflow-hidden max-w-lg">
+                    <p class="mask-word translate-y-[110%] inline-block text-sm md:text-base text-neutral-500 leading-relaxed font-extralight">
+                        An autonomous volumetric simulation powered by algorithmic dispersion and real-time data flow.
+                    </p>
+                </div>
+
+                <!-- CTA Actions -->
+                <div class="overflow-hidden pt-6">
+                    <div class="mask-word translate-y-[110%] flex flex-wrap gap-5 pointer-events-auto">
+                        <button class="relative group px-8 py-3.5 bg-white text-black rounded-none overflow-hidden">
+                            <div class="absolute inset-0 bg-neutral-200 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                            <div class="relative flex items-center gap-3">
+                                <span class="text-xs uppercase tracking-widest font-light text-black">Initialize</span>
+                                <iconify-icon icon="solar:play-linear" width="16"></iconify-icon>
+                            </div>
+                        </button>
+
+                        <button class="group px-8 py-3.5 rounded-none transition-colors backdrop-blur-sm" style="background: linear-gradient(rgba(255,255,255,0.02), rgba(255,255,255,0.02)) padding-box, linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.05) 100%) border-box; border: 1px solid transparent;">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs uppercase tracking-widest font-light text-neutral-400 group-hover:text-white transition-colors">System Specs</span>
+                                <iconify-icon icon="solar:document-linear" width="16" class="text-neutral-500 group-hover:text-white transition-colors"></iconify-icon>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Fixed Footer -->
+        <footer class="fixed bottom-6 md:bottom-12 left-6 right-6 md:left-12 md:right-12 pointer-events-auto nav-item opacity-0 px-6 py-6 grid grid-cols-3 items-end z-30">
+            <div class="flex flex-col gap-2">
+                <span class="text-[10px] uppercase tracking-widest text-neutral-600 font-light">Telemetry</span>
+                <span id="coords" class="text-xs font-mono text-neutral-300 font-extralight">0.00.0.00.00</span>
+            </div>
+
+            <div class="hidden sm:flex flex-col gap-2 items-center">
+                <span class="text-[10px] uppercase tracking-[0.2em] text-neutral-600 font-light">Scroll to traverse</span>
+                <div class="w-px h-8 bg-gradient-to-b from-neutral-600 to-transparent"></div>
+            </div>
+            
+            <div class="flex gap-6 justify-self-end">
+                <a href="#" class="text-neutral-600 hover:text-white transition-colors">
+                    <iconify-icon icon="solar:link-linear" width="18"></iconify-icon>
+                </a>
+                <a href="#" class="text-neutral-600 hover:text-white transition-colors">
+                    <iconify-icon icon="solar:maximize-square-linear" width="18"></iconify-icon>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Main Logic & Interactions -->
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // Register GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // --- Configuration (Monotone) ---
+        const config = {
+            colors: {
+                bg: 0x050505,
+                primary: 0xdddddd, 
+                secondary: 0x555555
+            }
+        };
+
+        // --- Scene Setup ---
+        const canvas = document.querySelector('#webgl-canvas');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(config.colors.bg);
+        scene.fog = new THREE.FogExp2(config.colors.bg, 0.04);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.z = 7;
+
+        const renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            antialias: false,
+            powerPreference: "high-performance",
+            alpha: false
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.0;
+
+        // --- Objects Container ---
+        const mainGroup = new THREE.Group();
+        scene.add(mainGroup);
+
+        // --- 1. Vortex Particle Field (Smaller Dots) ---
+        const vortexCount = 9500;
+        const vortexPositions = new Float32Array(vortexCount * 3);
+        const vortexRadius = new Float32Array(vortexCount);
+        const vortexAngle = new Float32Array(vortexCount);
+        const vortexHeight = new Float32Array(vortexCount);
+        const vortexSpeed = new Float32Array(vortexCount);
+
+        for (let i = 0; i < vortexCount; i++) {
+            const i3 = i * 3;
+            const y = (Math.random() - 0.5) * 7.5;
+            const funnel = 0.4 + Math.abs(y) * 0.2;
+            const r = (0.1 + Math.pow(Math.random(), 1.5) * 2.5) * funnel;
+            const a = Math.random() * Math.PI * 2;
+
+            vortexHeight[i] = y;
+            vortexRadius[i] = r;
+            vortexAngle[i] = a;
+            vortexSpeed[i] = 0.5 + Math.random() * 0.8;
+
+            vortexPositions[i3] = Math.cos(a) * r;
+            vortexPositions[i3 + 1] = y;
+            vortexPositions[i3 + 2] = Math.sin(a) * r;
+        }
+
+        const vortexGeometry = new THREE.BufferGeometry();
+        vortexGeometry.setAttribute('position', new THREE.BufferAttribute(vortexPositions, 3));
+        const vortexMaterial = new THREE.PointsMaterial({
+            size: 0.006, // Smaller dots requested
+            color: config.colors.primary,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        const vortexPoints = new THREE.Points(vortexGeometry, vortexMaterial);
+        mainGroup.add(vortexPoints);
+
+        // --- 2. Spiral Guides ---
+        function createSpiralLine(turnOffset, color) {
+            const spiralPoints = [];
+            const pointCount = 400;
+            for (let i = 0; i < pointCount; i++) {
+                const t = i / (pointCount - 1);
+                const angle = t * Math.PI * 14 + turnOffset;
+                const radius = 0.2 + t * 2.8;
+                const y = (0.5 - t) * 6.0;
+                spiralPoints.push(new THREE.Vector3(
+                    Math.cos(angle) * radius,
+                    y,
+                    Math.sin(angle) * radius
+                ));
+            }
+            const spiralGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
+            const spiralMaterial = new THREE.LineBasicMaterial({
+                color,
+                transparent: true,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending
+            });
+            return new THREE.Line(spiralGeometry, spiralMaterial);
+        }
+
+        const spiralLineA = createSpiralLine(0, config.colors.secondary);
+        const spiralLineB = createSpiralLine(Math.PI, config.colors.primary);
+        mainGroup.add(spiralLineA);
+        mainGroup.add(spiralLineB);
+
+        // --- 3. Ambient Particles ---
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 300;
+        const posArray = new Float32Array(particlesCount * 3);
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 12;
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.008,
+            color: config.colors.secondary,
+            transparent: true,
+            opacity: 0.4,
+            blending: THREE.AdditiveBlending
+        });
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // --- Post Processing ---
+        const renderScene = new RenderPass(scene, camera);
+        const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.0, 0.4, 0.85);
+        bloomPass.strength = 0.6;
+        bloomPass.radius = 0.3;
+        bloomPass.threshold = 0.2;
+
+        const composer = new EffectComposer(renderer);
+        composer.addPass(renderScene);
+        composer.addPass(bloomPass);
+
+        // --- Interactions & Animation State ---
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+            
+            // Coordinates Update
+            const xVal = (event.clientX / window.innerWidth).toFixed(2);
+            const yVal = (event.clientY / window.innerHeight).toFixed(2);
+            document.getElementById('coords').innerText = `${xVal}.${yVal}.00`;
+        });
+
+        // --- Animation Loop ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            const elapsedTime = clock.getElapsedTime();
+
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.0008;
+
+            mainGroup.rotation.y += 0.002;
+            mainGroup.rotation.y += 0.03 * (targetX - mainGroup.rotation.y);
+            mainGroup.rotation.x += 0.03 * (targetY - mainGroup.rotation.x);
+
+            const positions = vortexGeometry.attributes.position.array;
+            for (let i = 0; i < vortexCount; i++) {
+                const i3 = i * 3;
+                const spin = elapsedTime * vortexSpeed[i] * 0.5 + vortexHeight[i] * 0.5;
+                const angle = vortexAngle[i] + spin;
+                const pulse = Math.sin(elapsedTime * 1.2 + i * 0.01) * 0.05;
+                const radius = vortexRadius[i] + pulse;
+
+                positions[i3] = Math.cos(angle) * radius;
+                positions[i3 + 1] = vortexHeight[i] + Math.sin(elapsedTime + i * 0.02) * 0.03;
+                positions[i3 + 2] = Math.sin(angle) * radius;
+            }
+            vortexGeometry.attributes.position.needsUpdate = true;
+
+            spiralLineA.rotation.y = elapsedTime * 0.15;
+            spiralLineB.rotation.y = -elapsedTime * 0.12;
+
+            particlesMesh.rotation.y = elapsedTime * 0.03;
+            particlesMesh.rotation.x = -mouseY * 0.0001;
+
+            composer.render();
+            requestAnimationFrame(animate);
+        }
+
+        // --- Resize ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
+        });
+
+        // --- Init & GSAP Animations ---
+        window.onload = () => {
+            animate();
+
+            // Loader Shimmer loop
+            gsap.to("#shimmer-bar", { x: "100%", duration: 1.5, repeat: -1, ease: "power1.inOut" });
+
+            const tl = gsap.timeline();
+
+            // 1. Loader Exit & Nav Enter
+            tl.to("#loader", {
+                opacity: 0,
+                duration: 1.0,
+                onComplete: () => { document.getElementById("loader").style.display = "none"; }
+            })
+            .from(mainGroup.scale, { x: 0.6, y: 0.6, z: 0.6, duration: 2.0, ease: "power3.out" }, "-=0.5")
+            .to(".nav-item", { opacity: 1, y: 0, duration: 1.2, stagger: 0.15, ease: "power2.out" }, "-=1.5");
+
+            // 2. ScrollTrigger Masked Staggered Word Reveal
+            gsap.to(".mask-word", {
+                scrollTrigger: {
+                    trigger: ".scroll-trigger-area",
+                    start: "top 80%",
+                },
+                y: 0,
+                duration: 1.4,
+                stagger: 0.1,
+                ease: "power4.out"
+            });
+        };
+    </script>
+
+    <!-- JS based Glitch Effect to avoid arbitrary style tags -->
+    <script>
+        (function(){
+            const targets = document.querySelectorAll('.glitch-target');
+            let lastX = 0, lastY = 0, lastTime = 0;
+            
+            document.addEventListener('mousemove', e => {
+                const now = Date.now(), dt = now - lastTime;
+                if (dt > 40) {
+                    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+                    const speed = Math.sqrt(dx * dx + dy * dy) / dt;
+                    
+                    if (speed > 2.0) {
+                        targets.forEach(el => {
+                            if (!el.dataset.animating) {
+                                el.dataset.animating = "true";
+                                gsap.to(el, {
+                                    x: () => (Math.random() - 0.5) * 4,
+                                    y: () => (Math.random() - 0.5) * 2,
+                                    textShadow: "2px 0 rgba(255,255,255,0.4), -2px 0 rgba(100,100,100,0.4)",
+                                    duration: 0.05,
+                                    yoyo: true,
+                                    repeat: 3,
+                                    onComplete: () => {
+                                        gsap.set(el, { x: 0, y: 0, textShadow: "none" });
+                                        setTimeout(() => el.dataset.animating = "", 200);
+                                    }
+                                });
+                            }
+                        });
+                    }
+                    lastX = e.clientX; lastY = e.clientY; lastTime = now;
+                }
+            });
+        })();
+    </script>
+</body>
+</html>

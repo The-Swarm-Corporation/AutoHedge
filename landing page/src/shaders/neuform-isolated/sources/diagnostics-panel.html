@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Diagnostics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <!-- GSAP & ScrollTrigger for Masked Reveal -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&family=JetBrains+Mono:wght@200;300;400&display=swap" rel="stylesheet">
+    <style>
+        /* Essential mask utility for inner gradient borders */
+        .mask-border {
+            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+        }
+    </style>
+</head>
+<body class="bg-[#020804] text-white/90 antialiased min-h-screen flex items-center justify-center p-6 md:p-12 selection:bg-[#34d399]/20 font-sans relative overflow-hidden">
+
+    <!-- Aura Asset Image Background Layer -->
+    <div class="absolute inset-0 z-0 opacity-20 bg-[url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/fa51902b-c2a4-4c33-a96e-a8f1ef67edc6_1600w.jpg')] bg-cover bg-center pointer-events-none mix-blend-screen"></div>
+
+    <!-- WebGL-style Lines & Particles Background -->
+    <canvas id="bg-waves" class="absolute inset-0 z-0 pointer-events-none opacity-40"></canvas>
+
+    <main id="main-container" class="max-w-7xl w-full relative bg-white/[0.04] p-px z-10 backdrop-blur-sm shadow-2xl shadow-[#34d399]/5 rounded-sm">
+        
+        <div id="flashlight" class="absolute inset-0 z-0 opacity-0 transition-opacity duration-300 pointer-events-none" style="background: radial-gradient(600px circle at var(--x, 50%) var(--y, 50%), rgba(52,211,153,0.08), transparent 40%);"></div>
+
+        <!-- Corner Accents -->
+        <div class="absolute -top-[3px] -left-[3px] w-1.5 h-1.5 border border-[#34d399]/30 bg-[#020804] z-30"></div>
+        <div class="absolute -top-[3px] -right-[3px] w-1.5 h-1.5 border border-[#34d399]/30 bg-[#020804] z-30"></div>
+        <div class="absolute -bottom-[3px] -left-[3px] w-1.5 h-1.5 border border-[#34d399]/30 bg-[#020804] z-30"></div>
+        <div class="absolute -bottom-[3px] -right-[3px] w-1.5 h-1.5 border border-[#34d399]/30 bg-[#020804] z-30"></div>
+
+        <!-- Horizontal Shooting Line -->
+        <div class="hidden md:block absolute -top-px left-0 right-0 h-px overflow-hidden z-20 pointer-events-none">
+            <div id="shoot-h" class="absolute top-0 left-0 w-64 h-full bg-gradient-to-r from-transparent via-[#34d399]/80 to-transparent"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-y-px md:gap-x-px relative z-10">
+            
+            <article class="relative flex flex-col py-12 md:p-12 bg-[#020804]/90 backdrop-blur-md">
+                <!-- Border Gradient Overlay -->
+                <div class="absolute inset-0 border border-transparent bg-[linear-gradient(to_bottom,rgba(52,211,153,0.35),transparent)] mask-border pointer-events-none z-20"></div>
+
+                <header class="text-xs text-white/40 mb-16 uppercase tracking-widest font-mono flex items-center gap-3 font-extralight">
+                    <iconify-icon icon="solar:cpu-linear" stroke-width="1.5" class="text-sm text-[#34d399] drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]"></iconify-icon>
+                    CORE-X
+                </header>
+                <div class="flex-grow flex items-center justify-center mb-16 relative h-56 w-full">
+                    <canvas id="canvas-layers" class="absolute inset-0 w-full h-full" style="touch-action: none;"></canvas>
+                </div>
+                <div>
+                    <h3 class="text-lg font-extralight tracking-tight mb-3 text-white/90 flex items-center">
+                        <span class="typewriter" data-text="Neural Synchrony"></span><span class="animate-pulse inline-block w-1 h-4 bg-[#34d399]/80 ml-2 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+                    </h3>
+                    <p class="text-sm text-white/40 leading-relaxed font-extralight reveal-text">Optimized for zero-latency cognitive routing, maintaining absolute parity across decentralized processing nodes.</p>
+                </div>
+            </article>
+
+            <article class="relative flex flex-col py-12 md:p-12 bg-[#020804]/90 backdrop-blur-md">
+                <!-- Border Gradient Overlay -->
+                <div class="absolute inset-0 border border-transparent bg-[linear-gradient(to_bottom,rgba(52,211,153,0.35),transparent)] mask-border pointer-events-none z-20"></div>
+                
+                <div class="hidden md:block absolute top-0 bottom-0 -left-px w-px overflow-hidden z-20 pointer-events-none">
+                    <div id="shoot1" class="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-transparent via-[#34d399]/70 to-transparent"></div>
+                </div>
+                
+                <header class="text-xs text-white/40 mb-16 uppercase tracking-widest font-mono flex items-center gap-3 font-extralight">
+                    <iconify-icon icon="solar:server-square-linear" stroke-width="1.5" class="text-sm text-[#34d399] drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]"></iconify-icon>
+                    LINK-Y
+                </header>
+                <div class="flex-grow flex items-center justify-center mb-16 relative h-56 w-full">
+                    <canvas id="canvas-nodes" class="absolute inset-0 w-full h-full" style="touch-action: none;"></canvas>
+                </div>
+                <div>
+                    <h3 class="text-lg font-extralight tracking-tight mb-3 text-white/90 flex items-center">
+                        <span class="typewriter" data-text="Fluid Topologies"></span><span class="animate-pulse inline-block w-1 h-4 bg-[#34d399]/80 ml-2 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+                    </h3>
+                    <p class="text-sm text-white/40 leading-relaxed font-extralight reveal-text">Self-healing network architectures that dynamically adjust vectors to circumvent bottlenecks and systemic anomalies.</p>
+                </div>
+            </article>
+
+            <article class="relative flex flex-col py-12 md:p-12 bg-[#020804]/90 backdrop-blur-md">
+                <!-- Border Gradient Overlay -->
+                <div class="absolute inset-0 border border-transparent bg-[linear-gradient(to_bottom,rgba(52,211,153,0.35),transparent)] mask-border pointer-events-none z-20"></div>
+
+                <div class="hidden md:block absolute top-0 bottom-0 -left-px w-px overflow-hidden z-20 pointer-events-none">
+                    <div id="shoot2" class="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-transparent via-[#34d399]/60 to-transparent"></div>
+                </div>
+                <div class="hidden md:block absolute top-0 bottom-0 -right-px w-px overflow-hidden z-20 pointer-events-none">
+                    <div id="shoot3" class="absolute top-0 left-0 w-full h-56 bg-gradient-to-b from-transparent via-[#34d399]/70 to-transparent"></div>
+                </div>
+
+                <header class="text-xs text-white/40 mb-16 uppercase tracking-widest font-mono flex items-center gap-3 font-extralight">
+                    <iconify-icon icon="solar:network-linear" stroke-width="1.5" class="text-sm text-[#34d399] drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]"></iconify-icon>
+                    GRID-Z
+                </header>
+                <div class="flex-grow flex items-center justify-center mb-16 relative h-56 w-full">
+                    <canvas id="canvas-flow" class="absolute inset-0 w-full h-full" style="touch-action: none;"></canvas>
+                </div>
+                <div>
+                    <h3 class="text-lg font-extralight tracking-tight mb-3 text-white/90 flex items-center">
+                        <span class="typewriter" data-text="Elastic Matrices"></span><span class="animate-pulse inline-block w-1 h-4 bg-[#34d399]/80 ml-2 shadow-[0_0_8px_rgba(52,211,153,0.6)]"></span>
+                    </h3>
+                    <p class="text-sm text-white/40 leading-relaxed font-extralight reveal-text">Responsive structural frameworks that instantly allocate computational mass during spikes and retract to preserve efficiency.</p>
+                </div>
+            </article>
+
+        </div>
+    </main>
+
+    <script>
+        // WebGL-style Background (Lines & Particles)
+        const bgCanvas = document.getElementById('bg-waves');
+        const bgCtx = bgCanvas.getContext('2d', { alpha: true });
+        let bw, bh, bgT = 0;
+        const resizeBg = () => {
+            bw = window.innerWidth; bh = window.innerHeight;
+            bgCanvas.width = bw; bgCanvas.height = bh;
+        };
+        window.addEventListener('resize', resizeBg);
+        resizeBg();
+
+        const drawBg = () => {
+            bgT += 0.012;
+            bgCtx.clearRect(0, 0, bw, bh);
+            bgCtx.save();
+            bgCtx.translate(bw / 2, bh / 2 + 150);
+            
+            const cols = 32, rows = 22, sp = 65;
+            bgCtx.lineWidth = 1;
+            
+            for(let z = 0; z < rows; z++) {
+                for(let x = 0; x < cols; x++) {
+                    const px = (x - cols/2) * sp;
+                    const pz = z * sp;
+                    const scale = 800 / (800 + pz);
+                    const sx = px * scale;
+                    const y = Math.sin(x * 0.3 + bgT) * Math.cos(z * 0.3 + bgT) * 60;
+                    const sy = (y + 50) * scale - 200;
+
+                    bgCtx.fillStyle = `rgba(52,211,153, ${0.7 * scale})`;
+                    bgCtx.beginPath();
+                    bgCtx.arc(sx, sy, 1.2 * scale, 0, Math.PI*2);
+                    bgCtx.fill();
+
+                    if (x > 0) {
+                        const pxL = (x - 1 - cols/2) * sp;
+                        const sxL = pxL * scale;
+                        const yL = Math.sin((x - 1) * 0.3 + bgT) * Math.cos(z * 0.3 + bgT) * 60;
+                        const syL = (yL + 50) * scale - 200;
+                        bgCtx.strokeStyle = `rgba(52,211,153, ${0.12 * scale})`;
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(sx, sy); bgCtx.lineTo(sxL, syL);
+                        bgCtx.stroke();
+                    }
+                    if (z > 0) {
+                        const pzU = (z - 1) * sp;
+                        const scaleU = 800 / (800 + pzU);
+                        const sxU = px * scaleU;
+                        const yU = Math.sin(x * 0.3 + bgT) * Math.cos((z - 1) * 0.3 + bgT) * 60;
+                        const syU = (yU + 50) * scaleU - 200;
+                        bgCtx.strokeStyle = `rgba(52,211,153, ${0.12 * scale})`;
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(sx, sy); bgCtx.lineTo(sxU, syU);
+                        bgCtx.stroke();
+                    }
+                }
+            }
+            bgCtx.restore();
+            requestAnimationFrame(drawBg);
+        };
+        drawBg();
+
+        // Interactive & Shooting Lines
+        const mainEl = document.getElementById('main-container');
+        const flash = document.getElementById('flashlight');
+        const s1 = document.getElementById('shoot1'), s2 = document.getElementById('shoot2');
+        const s3 = document.getElementById('shoot3'), sh = document.getElementById('shoot-h');
+        let pos1 = -200, pos2 = -400, pos3 = -300, posH = -300;
+
+        mainEl.addEventListener('mousemove', (e) => {
+            const rect = mainEl.getBoundingClientRect();
+            flash.style.setProperty('--x', `${e.clientX - rect.left}px`);
+            flash.style.setProperty('--y', `${e.clientY - rect.top}px`);
+            flash.style.opacity = '1';
+        });
+        mainEl.addEventListener('mouseleave', () => flash.style.opacity = '0');
+
+        const animateShoots = () => {
+            const h = mainEl.offsetHeight || 1000, w = mainEl.offsetWidth || 1200;
+            pos1 += 2.5; pos2 += 1.8; pos3 += 3; posH += 3.5;
+            if (pos1 > h) pos1 = -200;
+            if (pos2 > h) pos2 = -200;
+            if (pos3 > h) pos3 = -200;
+            if (posH > w) posH = -300;
+            if (s1) s1.style.transform = `translateY(${pos1}px)`;
+            if (s2) s2.style.transform = `translateY(${pos2}px)`;
+            if (s3) s3.style.transform = `translateY(${pos3}px)`;
+            if (sh) sh.style.transform = `translateX(${posH}px)`;
+            requestAnimationFrame(animateShoots);
+        };
+        animateShoots();
+
+        // Typewriter Effect
+        document.querySelectorAll('.typewriter').forEach(el => {
+            const text = el.getAttribute('data-text');
+            let i = 0, isDeleting = false;
+            const type = () => {
+                i += isDeleting ? -1 : 1;
+                el.textContent = text.substring(0, i);
+                let delay = isDeleting ? 30 : 80;
+                if (!isDeleting && i === text.length) { delay = 4000; isDeleting = true; }
+                else if (isDeleting && i === 0) { delay = 1500; isDeleting = false; }
+                setTimeout(type, delay);
+            };
+            type();
+        });
+
+        // GSAP Masked Staggered Word Reveal 
+        gsap.registerPlugin(ScrollTrigger);
+        document.querySelectorAll('.reveal-text').forEach((el) => {
+            const words = el.innerText.split(' ');
+            el.innerHTML = '';
+            words.forEach(word => {
+                const wrapper = document.createElement('span');
+                wrapper.className = 'inline-block overflow-hidden mr-[0.25em] align-bottom leading-tight';
+                const inner = document.createElement('span');
+                inner.className = 'inline-block translate-y-full will-change-transform';
+                inner.innerText = word;
+                wrapper.appendChild(inner);
+                el.appendChild(wrapper);
+            });
+
+            gsap.to(el.querySelectorAll('.will-change-transform'), {
+                y: 0,
+                ease: "power4.out",
+                duration: 0.8,
+                stagger: 0.02,
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 95%",
+                }
+            });
+        });
+
+        // 3D Canvas Utilities
+        const projectIso = (x, y, z) => {
+            const angle = Math.PI / 6; 
+            return { x: (x - z) * Math.cos(angle), y: y + (x + z) * Math.sin(angle) };
+        };
+
+        const setupCanvas = (id, renderFn) => {
+            const canvas = document.getElementById(id);
+            const ctx = canvas.getContext('2d', { alpha: true });
+            let w, h, time = 0;
+            const resize = () => {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                w = rect.width; h = rect.height;
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = w * dpr; canvas.height = h * dpr;
+                ctx.scale(dpr, dpr);
+            };
+            window.addEventListener('resize', resize);
+            resize();
+            const loop = () => {
+                time += 0.015;
+                ctx.clearRect(0, 0, w, h);
+                ctx.save();
+                ctx.translate(w / 2, h / 2 + 5);
+                renderFn(ctx, time);
+                ctx.restore();
+                requestAnimationFrame(loop);
+            };
+            loop();
+        };
+
+        // Card 1: Fixed Cropping
+        setupCanvas('canvas-layers', (ctx, t) => {
+            const size = 42, layers = 5, gap = 20;
+            ctx.lineWidth = 1;
+            for (let i = layers - 1; i >= 0; i--) {
+                const yOff = i * gap - (layers * gap) / 2 + Math.sin(t + i * 0.4) * 4;
+                const p1 = projectIso(-size, yOff, -size), p2 = projectIso(size, yOff, -size);
+                const p3 = projectIso(size, yOff, size), p4 = projectIso(-size, yOff, size);
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+                ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.closePath();
+                
+                ctx.fillStyle = '#020804'; ctx.fill();
+                ctx.strokeStyle = i === 0 ? 'rgba(52,211,153,0.8)' : 'rgba(52,211,153,0.15)';
+                ctx.stroke();
+
+                if (i === 0) {
+                    ctx.save();
+                    const center = projectIso(0, yOff, 0);
+                    ctx.translate(center.x, center.y); ctx.scale(1, 0.5);
+                    const sqSize = size * 0.55;
+                    ctx.beginPath(); ctx.rect(-sqSize, -sqSize, sqSize * 2, sqSize * 2);
+                    ctx.strokeStyle = 'rgba(52,211,153,0.4)'; ctx.stroke();
+                    ctx.clip();
+                    for(let j = -sqSize; j < sqSize; j += 4) {
+                        ctx.beginPath(); ctx.moveTo(-sqSize, j); ctx.lineTo(sqSize, j);
+                        ctx.strokeStyle = 'rgba(52,211,153,0.2)'; ctx.stroke();
+                    }
+                    ctx.restore();
+                }
+                
+                if (i < layers - 1) {
+                    const nextY = (i+1) * gap - (layers * gap) / 2 + Math.sin(t + (i+1) * 0.4) * 4;
+                    const p1Next = projectIso(-size, nextY, -size), p3Next = projectIso(size, nextY, size);
+                    ctx.beginPath(); ctx.setLineDash([2, 2]);
+                    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p1Next.x, p1Next.y);
+                    ctx.moveTo(p3.x, p3.y); ctx.lineTo(p3Next.x, p3Next.y);
+                    ctx.strokeStyle = 'rgba(52,211,153,0.1)'; ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            }
+        });
+
+        // Card 2
+        const drawCube = (ctx, x, y, z, s, colorStr) => {
+            const pts = [
+                projectIso(x-s, y-s, z-s), projectIso(x+s, y-s, z-s), projectIso(x+s, y-s, z+s), projectIso(x-s, y-s, z+s),
+                projectIso(x-s, y+s, z-s), projectIso(x+s, y+s, z-s), projectIso(x+s, y+s, z+s), projectIso(x-s, y+s, z+s)
+            ];
+            ctx.strokeStyle = colorStr; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[1].x, pts[1].y); ctx.lineTo(pts[2].x, pts[2].y); ctx.lineTo(pts[3].x, pts[3].y); ctx.closePath();
+            ctx.moveTo(pts[4].x, pts[4].y); ctx.lineTo(pts[5].x, pts[5].y); ctx.lineTo(pts[6].x, pts[6].y); ctx.lineTo(pts[7].x, pts[7].y); ctx.closePath();
+            ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[4].x, pts[4].y);
+            ctx.moveTo(pts[1].x, pts[1].y); ctx.lineTo(pts[5].x, pts[5].y);
+            ctx.moveTo(pts[2].x, pts[2].y); ctx.lineTo(pts[6].x, pts[6].y);
+            ctx.moveTo(pts[3].x, pts[3].y); ctx.lineTo(pts[7].x, pts[7].y);
+            ctx.stroke();
+        };
+
+        setupCanvas('canvas-nodes', (ctx, t) => {
+            const s = 22, float = Math.sin(t) * 4;
+            drawCube(ctx, -35, -float, -35, s, 'rgba(52,211,153,0.15)');
+            drawCube(ctx, 35, float, -35, s, 'rgba(52,211,153,0.15)');
+            drawCube(ctx, -35, float, 35, s, 'rgba(52,211,153,0.15)');
+            drawCube(ctx, 35, -float, 35, s, 'rgba(52,211,153,0.15)');
+            drawCube(ctx, 0, Math.cos(t)*6 - 15, 0, s*0.9, 'rgba(52,211,153,0.6)'); 
+        });
+
+        // Card 3
+        setupCanvas('canvas-flow', (ctx, t) => {
+            const size = 65, segments = 22, step = (size * 2) / segments;
+            ctx.lineWidth = 1;
+            const getH = (x, z) => {
+                const dist = Math.sqrt(x*x + z*z);
+                const peak = Math.max(0, 45 - dist * 1.1);
+                const wave = Math.sin(x*0.2 + t*1.5) * Math.cos(z*0.2 + t*1.5) * 5;
+                return -peak - wave + 15;
+            };
+
+            for (let z = -size; z < size; z += step) {
+                for (let x = -size; x < size; x += step) {
+                    const y1 = getH(x, z), y2 = getH(x + step, z);
+                    const y3 = getH(x + step, z + step), y4 = getH(x, z + step);
+                    const p1 = projectIso(x, y1, z), p2 = projectIso(x + step, y2, z);
+                    const p3 = projectIso(x + step, y3, z + step), p4 = projectIso(x, y4, z + step);
+
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
+                    ctx.lineTo(p3.x, p3.y); ctx.lineTo(p4.x, p4.y); ctx.closePath();
+                    ctx.fillStyle = '#020804'; ctx.fill();
+
+                    const heightRatio = Math.max(0, (-y1) / 30);
+                    const alpha = 0.05 + heightRatio * 0.4;
+                    ctx.strokeStyle = heightRatio > 0.6 ? `rgba(52,211,153,${alpha + 0.3})` : `rgba(52,211,153,${alpha + 0.05})`;
+                    ctx.stroke();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

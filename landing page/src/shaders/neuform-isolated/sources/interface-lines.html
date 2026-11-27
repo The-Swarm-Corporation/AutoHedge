@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body class="bg-[#0a0a0c] text-zinc-400 font-mono min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-hidden selection:bg-zinc-800 selection:text-white">
+    
+    <!-- Aura Asset Background Image -->
+    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/fa51902b-c2a4-4c33-a96e-a8f1ef67edc6_1600w.jpg" 
+         class="absolute inset-0 w-full h-full object-cover opacity-10 mix-blend-screen pointer-events-none z-0" 
+         alt="">
+
+    <!-- WebGL-simulated Background Animation -->
+    <canvas id="bg-canvas" class="absolute inset-0 z-0 pointer-events-none"></canvas>
+
+    <!-- Main UI Container -->
+    <main class="relative z-10 w-full max-w-2xl flex flex-col gap-12 sm:gap-20">
+
+        <!-- PANEL 1: CORE (Red/Orange) -->
+        <section class="relative group">
+            <!-- Border Gradient Skill Application -->
+            <div class="absolute -inset-[1px] rounded-lg bg-gradient-to-r from-[#c87a65]/40 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" style="mask-image: linear-gradient(black, black); -webkit-mask-image: -webkit-linear-gradient(black, black);"></div>
+            
+            <div class="relative bg-[#0a0a0c] rounded-lg p-2 flex flex-col gap-4 text-[#c87a65]">
+                
+                <!-- Top Row -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-[#c87a65]/20 pb-2">
+                    <h1 class="gsap-reveal text-3xl sm:text-4xl tracking-tight font-medium uppercase animate-pulse" style="animation-duration: 4s;">[ CORE ]</h1>
+                    <div class="flex gap-6 text-xs tracking-wider">
+                        <div class="flex flex-col gap-1">
+                            <span>CONF.SYS</span>
+                            <span class="opacity-70">RESTART</span>
+                            <span class="opacity-70">SLEEP</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span>BUILD_11</span>
+                            <span class="opacity-70">ANALYZE</span>
+                            <span class="opacity-70">INPUT NEEDED</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Row -->
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-6">
+                    <!-- Dot Matrix -->
+                    <div class="grid grid-cols-[repeat(20,minmax(0,1fr))] gap-1 opacity-80" id="matrix-1">
+                        <!-- Populated by JS for brevity -->
+                    </div>
+                    
+                    <!-- Right Controls -->
+                    <div class="flex flex-col gap-2 min-w-[200px]">
+                        <div class="flex items-center justify-between border-b border-[#c87a65]/20 pb-1">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full bg-[#c87a65] animate-ping" style="animation-duration: 3s;"></div>
+                                <span class="text-lg tracking-widest">++</span>
+                            </div>
+                            <span class="text-xs">HASH: 0x3C9A</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs pt-1">
+                            <span>2B-44 - TEMP: 61°C</span>
+                            <div class="w-8 h-3 rounded-full border border-[#c87a65]/50 flex items-center p-[1px]">
+                                <div class="w-2 h-full bg-[#c87a65] rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL 2: SECURE (Green) -->
+        <section class="relative group">
+            <!-- Border Gradient Skill Application -->
+            <div class="absolute -inset-[1px] rounded-lg bg-gradient-to-l from-[#7a9f65]/40 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" style="mask-image: linear-gradient(black, black); -webkit-mask-image: -webkit-linear-gradient(black, black);"></div>
+            
+            <div class="relative bg-[#0a0a0c] rounded-lg p-2 flex flex-col gap-3 text-[#7a9f65]">
+                
+                <!-- Ruler -->
+                <div class="relative w-full h-4 border-t border-[#7a9f65]/30 flex justify-between">
+                    <div class="w-px h-2 bg-[#7a9f65]/50"></div>
+                    <div class="w-px h-1 bg-[#7a9f65]/30"></div>
+                    <div class="w-px h-2 bg-[#7a9f65]/50"></div>
+                    <div class="w-px h-1 bg-[#7a9f65]/30"></div>
+                    <div class="w-px h-2 bg-[#7a9f65]/50"></div>
+                    <div class="w-px h-1 bg-[#7a9f65]/30"></div>
+                    <div class="w-px h-2 bg-[#7a9f65]/50"></div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-end gap-6">
+                    <!-- Large Dot Pattern -->
+                    <div class="flex flex-col gap-2 opacity-90">
+                        <div class="flex gap-2"><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current opacity-20"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current opacity-20"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current"></div></div>
+                        <div class="flex gap-2"><div class="w-2 h-2 rounded-full bg-current opacity-20"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current opacity-20"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current opacity-20"></div><div class="w-2 h-2 rounded-full bg-current"></div></div>
+                        <div class="flex gap-2"><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current opacity-20"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current opacity-20"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current"></div><div class="w-2 h-2 rounded-full bg-current opacity-20"></div></div>
+                    </div>
+
+                    <!-- Info Box & Title -->
+                    <div class="flex flex-col items-end gap-2 w-full sm:w-auto">
+                        <div class="flex items-stretch gap-2">
+                            <div class="border border-[#7a9f65]/30 p-2 text-xs flex flex-col justify-center min-w-[120px]">
+                                <span>APPROVED</span>
+                                <span class="opacity-70">ID: X7-44</span>
+                                <span class="opacity-70">SEQ: #0933</span>
+                            </div>
+                            <div class="border border-[#7a9f65]/30 p-2 flex items-center justify-center">
+                                <iconify-icon icon="solar:clock-circle-linear" class="text-xl"></iconify-icon>
+                            </div>
+                            <!-- Logo Box -->
+                            <div class="w-12 h-12 bg-[#7a9f65] relative overflow-hidden flex-shrink-0">
+                                <div class="absolute w-16 h-4 bg-[#0a0a0c] -rotate-45 top-4 -left-2"></div>
+                            </div>
+                        </div>
+                        <h2 class="gsap-reveal text-2xl sm:text-3xl tracking-tight font-medium uppercase">SECURE</h2>
+                    </div>
+                </div>
+
+                <!-- Bottom Text -->
+                <div class="flex flex-col sm:flex-row justify-between text-xs mt-2 opacity-80">
+                    <span>LOADING <span class="animate-pulse">...</span></span>
+                    <span>//KEY: <span class="text-white opacity-90">0x7B11</span>//</span>
+                </div>
+                <div class="text-xs opacity-70">
+                    SYNCING - ID: 88-K - DATA DROP: 0.2% SECTOR 9
+                </div>
+            </div>
+        </section>
+
+        <!-- PANEL 3: 909 (Purple/Blue) -->
+        <section class="relative group">
+            <!-- Border Gradient Skill Application -->
+            <div class="absolute -inset-[1px] rounded-lg bg-gradient-to-t from-[#756a9f]/40 via-transparent to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" style="mask-image: linear-gradient(black, black); -webkit-mask-image: -webkit-linear-gradient(black, black);"></div>
+            
+            <div class="relative bg-[#0a0a0c] rounded-lg p-2 flex flex-col gap-4 text-[#756a9f]">
+                
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-8">
+                    
+                    <!-- Left: Node Diagram -->
+                    <div class="relative w-32 h-16 flex-shrink-0 hidden sm:block">
+                        <!-- Lines -->
+                        <div class="absolute top-2 left-2 w-20 h-px bg-[#756a9f]/50"></div>
+                        <div class="absolute top-10 left-6 w-16 h-px bg-[#756a9f]/50"></div>
+                        <div class="absolute top-2 left-22 w-px h-8 bg-[#756a9f]/50 rotate-45 origin-top-left"></div>
+                        <div class="absolute top-10 left-6 w-px h-6 bg-[#756a9f]/50 -rotate-45 origin-top-left"></div>
+                        
+                        <!-- Nodes -->
+                        <div class="absolute top-1.5 left-1.5 w-1.5 h-1.5 rounded-full border border-[#756a9f] bg-[#0a0a0c]"></div>
+                        <div class="absolute top-1.5 left-21.5 w-1.5 h-1.5 rounded-full border border-[#756a9f] bg-[#0a0a0c]"></div>
+                        <div class="absolute top-9.5 left-5.5 w-1.5 h-1.5 rounded-full border border-[#756a9f] bg-[#0a0a0c]"></div>
+                        <div class="absolute top-9.5 left-21.5 w-1.5 h-1.5 rounded-full border border-[#756a9f] bg-[#0a0a0c]"></div>
+                        <div class="absolute top-14.5 left-1.5 w-1.5 h-1.5 rounded-full border border-[#756a9f] bg-[#0a0a0c]"></div>
+                        
+                        <!-- Arrows -->
+                        <div class="absolute top-5 left-0 flex items-center gap-1">
+                            <iconify-icon icon="solar:alt-arrow-right-linear" class="text-lg"></iconify-icon>
+                            <div class="w-8 h-px bg-[#756a9f]"></div>
+                        </div>
+                    </div>
+
+                    <!-- Middle: Title -->
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1 sm:hidden">
+                            <iconify-icon icon="solar:alt-arrow-right-linear" class="text-lg"></iconify-icon>
+                            <div class="w-8 h-px bg-[#756a9f]"></div>
+                        </div>
+                        <h3 class="gsap-reveal text-5xl sm:text-6xl tracking-tight font-normal">909</h3>
+                    </div>
+
+                    <!-- Right: Info & Circle -->
+                    <div class="flex items-center gap-6">
+                        <div class="flex flex-col text-xs">
+                            <span>SECURITY-NET</span>
+                            <span class="opacity-70">ACTIVE</span>
+                            <span class="opacity-70">STAT: 0xBB02</span>
+                            <div class="flex gap-1 mt-1">
+                                <div class="w-1.5 h-1.5 rounded-full border border-current"></div>
+                                <div class="w-1.5 h-1.5 rounded-full border border-current"></div>
+                                <div class="w-1.5 h-1.5 rounded-full border border-current bg-current"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Circular Dots -->
+                        <div class="relative w-12 h-12 animate-spin" style="animation-duration: 10s; animation-timing-function: linear;">
+                            <div class="absolute inset-0" id="circle-dots">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Text -->
+                <div class="text-center sm:text-left text-xs flex flex-col sm:flex-row sm:justify-center gap-2 sm:gap-8 mt-2 opacity-80">
+                    <span>UPLINK STATUS - <span class="text-white opacity-90">ONLINE</span></span>
+                    <span>POWER: 48V - DRAW: 1.8A</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // GSAP Masked Staggered Reveal Logic
+        gsap.registerPlugin(ScrollTrigger);
+        document.querySelectorAll('.gsap-reveal').forEach(el => {
+            const text = el.innerText;
+            const words = text.split(' ');
+            el.innerHTML = '';
+            words.forEach((word, i) => {
+                const outer = document.createElement('span');
+                // Ensure overflow hidden and adjust alignment
+                outer.className = 'inline-block overflow-hidden pb-1 -mb-1 align-bottom';
+                const inner = document.createElement('span');
+                inner.className = 'inline-block translate-y-[120%]';
+                inner.innerText = word + (i < words.length - 1 ? '\u00A0' : '');
+                outer.appendChild(inner);
+                el.appendChild(outer);
+                
+                gsap.to(inner, {
+                    y: "0%",
+                    duration: 0.8,
+                    ease: "power3.out",
+                    delay: i * 0.1,
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 95%",
+                    }
+                });
+            });
+        });
+
+        // Populate Matrix 1
+        const matrixContainer = document.getElementById('matrix-1');
+        let matrixHTML = '';
+        for(let i=0; i<80; i++) {
+            const isFilled = Math.random() > 0.6;
+            const isDim = Math.random() > 0.5;
+            matrixHTML += `<div class="w-1.5 h-1.5 rounded-full border border-current ${isFilled ? 'bg-current' : ''} ${isDim ? 'opacity-30' : ''}"></div>`;
+        }
+        matrixContainer.innerHTML = matrixHTML;
+
+        // Populate Circle Dots
+        const circleContainer = document.getElementById('circle-dots');
+        let circleHTML = '';
+        for(let i=0; i<12; i++) {
+            const angle = (i * 30) * (Math.PI / 180);
+            const x = 24 + 20 * Math.cos(angle) - 3; // center 24, radius 20, offset half width
+            const y = 24 + 20 * Math.sin(angle) - 3;
+            const isFilled = i % 3 === 0;
+            circleHTML += `<div class="absolute w-1.5 h-1.5 rounded-full border border-current ${isFilled ? 'bg-current' : ''}" style="left: ${x}px; top: ${y}px;"></div>`;
+        }
+        circleContainer.innerHTML = circleHTML;
+
+        // WebGL-simulated Canvas Animation
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function initCanvas() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = Math.max(1, Math.floor(width * dpr));
+            canvas.height = Math.max(1, Math.floor(height * dpr));
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.imageSmoothingEnabled = false;
+            particles = [];
+            const numParticles = window.innerWidth < 640 ? 30 : 70;
+            for (let i = 0; i < numParticles; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5
+                });
+            }
+        }
+
+        function drawLines() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.lineWidth = 1;
+            ctx.lineCap = 'butt';
+            ctx.lineJoin = 'miter';
+            
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > width) p.vx *= -1;
+                if (p.y < 0 || p.y > height) p.vy *= -1;
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    let p2 = particles[j];
+                    let dx = p.x - p2.x;
+                    let dy = p.y - p2.y;
+                    let dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${0.28 + (1 - dist / 120) * 0.42})`;
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                    }
+                }
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+                ctx.fillRect(p.x - 0.75, p.y - 0.75, 1.5, 1.5);
+            }
+            requestAnimationFrame(drawLines);
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        drawLines();
+    </script>
+</body>
+</html>
