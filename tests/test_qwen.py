@@ -1,0 +1,324 @@
+"""
+Tests for Qwen2.5-1.5B Instruct integration.
+
+All model-inference tests use mocked HTTP (httpx) so no real Qwen API
+credentials or network calls are required. Actual Qwen inference is never
+claimed in these tests.
+"""
+
+import os
+import unittest
+from unittest.mock import patch, MagicMock
+
+from market_mind_ai.env_loader import (
+    qwen_is_configured,
+    require_qwen_key,
+)
+from market_mind_ai.models.qwen_client import QwenClient, QwenConfig
+from market_mind_ai.models.qwen_model import QwenModel
+
+
+class QwenConfigTests(unittest.TestCase):
+    """Configuration is read entirely from environment variables."""
+
+    def test_defaults_when_no_env(self):
+        with patch.dict(os.environ, {}, clear=True):
+            # Remove Qwen-related vars if present
+            for k in (
+                "QWEN_API_KEY",
+                "QWEN_API_BASE",
+                "QWEN_MODEL",
+                "QWEN_TIMEOUT",
+                "QWEN_MAX_TOKENS",
+                "QWEN_TEMPERATURE",
+            ):
+                os.environ.pop(k, None)
+            config = QwenConfig()
+            self.assertIsNone(config.api_key)
+            self.assertFalse(config.is_configured)
+            self.assertIn("api/v1", config.api_base)
+            self.assertEqual(config.model, "qwen2.5-1.5b-instruct")
+            self.assertEqual(config.timeout, 30.0)
+            self.assertEqual(config.max_tokens, 4096)
+            self.assertEqual(config.temperature, 0.7)
+
+    def test_custom_env_values(self):
+        env = {
+            "QWEN_API_KEY": "test-key-123",
+            "QWEN_API_BASE": "https://custom.qwen.api/v1",
+            "QWEN_MODEL": "qwen2.5-1.5b-instruct",
+            "QWEN_TIMEOUT": "60",
+            "QWEN_MAX_TOKENS": "2048",
+            "QWEN_TEMPERATURE": "0.2",
+        }
+        with patch.dict(os.environ, env, clear=True):
+            config = QwenConfig()
+            self.assertEqual(config.api_key, "test-key-123")
+            self.assertTrue(config.is_configured)
+            self.assertEqual(
+                config.api_base, "https://custom.qwen.api/v1"
+            )
+            self.assertEqual(config.model, "qwen2.5-1.5b-instruct")
+            self.assertEqual(config.timeout, 60.0)
+            self.assertEqual(config.max_tokens, 2048)
+            self.assertEqual(config.temperature, 0.2)
+
+    def test_chat_url(self):
+        with patch.dict(
+            os.environ,
+            {
+                "QWEN_API_KEY": "key",
+                "QWEN_API_BASE": "https://api.example.com",
+            },
+            clear=True,
+        ):
+            config = QwenConfig()
+            self.assertEqual(
+                config.chat_url,
+                "https://api.example.com/chat/completions",
+            )
+
+
+class QwenClientAvailabilityTests(unittest.TestCase):
+    """Client availability and graceful degradation."""
+
+    def test_not_available_without_key(self):
+        with patch.dict(os.environ, {}, clear=True):
+            client = QwenClient()
+            self.assertFalse(client.is_available)
+
+    def test_available_with_key(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            client = QwenClient()
+            self.assertTrue(client.is_available)
+
+    def test_complete_returns_empty_when_not_configured(self):
+        with patch.dict(os.environ, {}, clear=True):
+            client = QwenClient()
+            result = client.complete("Say hello")
+            self.assertEqual(result, "")
+
+    def test_complete_json_returns_none_when_not_configured(self):
+        with patch.dict(os.environ, {}, clear=True):
+            client = QwenClient()
+            result = client.complete_json('{"x": 1}')
+            self.assertIsNone(result)
+
+    def test_close_is_safe_when_never_used(self):
+        with patch.dict(os.environ, {}, clear=True):
+            client = QwenClient()
+            client.close()  # should not raise
+
+
+class QwenClientMockedHTTPSessionTests(unittest.TestCase):
+    """Mocked HTTP session tests — no real Qwen API calls."""
+
+    def _make_mock_response(
+        self, text: str, status: int = 200
+    ) -> MagicMock:
+        mock = MagicMock()
+        mock.status_code = status
+        mock.json.return_value = {
+            "choices": [{"message": {"content": text}}],
+        }
+        mock.raise_for_status.return_value = None
+        return mock
+
+    def test_complete_success(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            client = QwenClient()
+            mock_response = self._make_mock_response(
+                "The answer is 42"
+            )
+            mock_http_client = MagicMock()
+            mock_http_client.post.return_value = mock_response
+            with patch.object(
+                client, "_get_client", return_value=mock_http_client
+            ):
+                result = client.complete("What is 2+2?")
+            self.assertEqual(result, "The answer is 42")
+
+    def test_complete_http_error(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            import httpx
+
+            client = QwenClient()
+            mock_client = MagicMock()
+            mock_client.post.side_effect = httpx.HTTPError("boom")
+            with patch.object(
+                client, "_get_client", return_value=mock_client
+            ):
+                result = client.complete("What is 2+2?")
+            self.assertEqual(result, "")
+
+    def test_complete_no_choices(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            client = QwenClient()
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"choices": []}
+            mock_response.raise_for_status.return_value = None
+            mock_client = MagicMock()
+            mock_client.post.return_value = mock_response
+            with patch.object(
+                client, "_get_client", return_value=mock_client
+            ):
+                result = client.complete("What is 2+2?")
+            self.assertEqual(result, "")
+
+    def test_complete_json_parses(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            client = QwenClient()
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                '{"ticker": "NVDA", "score": 0.8}'
+                            )
+                        }
+                    }
+                ],
+            }
+            mock_response.raise_for_status.return_value = None
+            mock_client = MagicMock()
+            mock_client.post.return_value = mock_response
+            with patch.object(
+                client, "_get_client", return_value=mock_client
+            ):
+                result = client.complete_json("Analyze NVDA")
+            self.assertIsNotNone(result)
+            self.assertEqual(result["ticker"], "NVDA")
+
+    def test_complete_json_invalid(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            client = QwenClient()
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "choices": [
+                    {"message": {"content": "not json at all"}}
+                ],
+            }
+            mock_response.raise_for_status.return_value = None
+            mock_client = MagicMock()
+            mock_client.post.return_value = mock_response
+            with patch.object(
+                client, "_get_client", return_value=mock_client
+            ):
+                result = client.complete_json("Analyze NVDA")
+            self.assertIsNone(result)
+
+
+class QwenModelTests(unittest.TestCase):
+    """QwenModel wrapper tests."""
+
+    def test_not_available_without_key(self):
+        with patch.dict(os.environ, {}, clear=True):
+            model = QwenModel()
+            self.assertFalse(model.is_available)
+
+    def test_call_returns_none_when_not_available(self):
+        with patch.dict(os.environ, {}, clear=True):
+            model = QwenModel()
+            result = model("system prompt", "user prompt")
+            self.assertIsNone(result)
+
+    def test_call_returns_none_on_unavailable(self):
+        with patch.dict(os.environ, {}, clear=True):
+            model = QwenModel()
+            result = model.call("prompt", system="system")
+            self.assertIsNone(result)
+
+    def test_call_success_when_available(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            model = QwenModel()
+            # Mock the client's complete method
+            with patch.object(
+                model.client, "complete", return_value="Qwen response"
+            ):
+                result = model("system", "user")
+            self.assertEqual(result, "Qwen response")
+
+    def test_call_success_via_call_method(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "test-key"}, clear=True
+        ):
+            model = QwenModel()
+            with patch.object(
+                model.client, "complete", return_value="call result"
+            ):
+                result = model.call(
+                    "user prompt", system="system prompt"
+                )
+            self.assertEqual(result, "call result")
+
+
+class WorkersQwenTests(unittest.TestCase):
+    """create_agents respects Qwen configuration."""
+
+    def test_create_agents_without_qwen_uses_default_models(self):
+        with patch.dict(os.environ, {}, clear=True):
+            from market_mind_ai.workers import create_agents
+
+            agents = create_agents(enable_trading=False)
+            self.assertIn("director", agents)
+            self.assertIn("sentiment", agents)
+            self.assertIn("quant", agents)
+            self.assertIn("risk", agents)
+            self.assertIn("execution", agents)
+            # When Qwen is not configured, agents should use model_name
+            # (not a custom llm)
+            self.assertIsNotNone(agents["director"].model_name)
+
+    def test_create_agents_with_qwen_uses_qwen_model(self):
+        env = {"QWEN_API_KEY": "test-key-123"}
+        with patch.dict(os.environ, env, clear=True):
+            # Reset cached Qwen model
+            import market_mind_ai.workers as w
+
+            w._QWEN_MODEL = None
+            from market_mind_ai.workers import create_agents
+
+            agents = create_agents(enable_trading=False)
+            self.assertIn("director", agents)
+            # When Qwen is configured, agents should have llm set
+            self.assertIsNotNone(agents["director"].llm)
+
+
+class EnvLoaderQwenTests(unittest.TestCase):
+    """env_loader Qwen helpers."""
+
+    def test_require_qwen_key_false_without_env(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertFalse(require_qwen_key())
+
+    def test_require_qwen_key_true_with_env(self):
+        with patch.dict(
+            os.environ, {"QWEN_API_KEY": "key"}, clear=True
+        ):
+            self.assertTrue(require_qwen_key())
+
+    def test_qwen_is_configured_matches_require_qwen_key(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(qwen_is_configured(), require_qwen_key())
+
+
+if __name__ == "__main__":
+    unittest.main()

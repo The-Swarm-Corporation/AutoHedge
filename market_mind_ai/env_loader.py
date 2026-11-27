@@ -39,3 +39,13 @@ def load_env() -> None:
 def require_openai_key() -> bool:
     """Return True if OPENAI_API_KEY is set (required for swarms gpt-4.x)."""
     return bool(os.getenv("OPENAI_API_KEY"))
+
+
+def require_qwen_key() -> bool:
+    """Return True if QWEN_API_KEY is set (required for Qwen2.5)."""
+    return bool(os.getenv("QWEN_API_KEY"))
+
+
+def qwen_is_configured() -> bool:
+    """Return True when Qwen2.5 is configured via environment variables."""
+    return require_qwen_key()

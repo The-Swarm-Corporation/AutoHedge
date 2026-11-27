@@ -9,8 +9,10 @@ kept as lazy, backwards-compatible aliases.
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
+from market_mind_ai.env_loader import qwen_is_configured
+from market_mind_ai.models.qwen_model import QwenModel
 from market_mind_ai.prompts import (
     DIRECTOR_FINAL_DECISION_PROMPT,
     DIRECTOR_PROMPT,
@@ -39,6 +41,23 @@ _LEGACY_NAMES = {
 
 _DEFAULT_AGENTS: Dict[str, Any] | None = None
 _LEGACY_DIRECTOR: Any = None
+_QWEN_MODEL: Optional[QwenModel] = None
+
+
+def _use_qwen() -> bool:
+    """Return True when Qwen2.5 is configured and should be used."""
+    return qwen_is_configured()
+
+
+def _get_qwen_model() -> Optional[QwenModel]:
+    """Lazily create and cache a QwenModel instance."""
+    global _QWEN_MODEL
+    if _QWEN_MODEL is None:
+        if _use_qwen():
+            _QWEN_MODEL = QwenModel()
+        else:
+            _QWEN_MODEL = None
+    return _QWEN_MODEL
 
 
 def _system_suffix() -> str:
@@ -47,12 +66,19 @@ def _system_suffix() -> str:
     line = now.strftime("%A, %B %d, %Y at %H:%M")
     if now.tzinfo:
         line += f" {now.tzname() or ''}"
-    return f"\n\nCurrent date and time (use this as now): {line.strip()}"
+    return (
+        f"\n\nCurrent date and time (use this as now): {line.strip()}"
+    )
 
 
 def create_agents(enable_trading: bool = False) -> Dict[str, Any]:
     """
     Build the pipeline agents.
+
+    When ``QWEN_API_KEY`` is set in the environment, agents use the
+    Qwen2.5-1.5B Instruct model via ``llm_base_url``/``llm_api_key`` on the
+    swarms Agent. Otherwise they fall back to the default OpenAI models
+    (gpt-4o-mini / gpt-4.1) for backwards compatibility.
 
     Args:
         enable_trading: when True, the execution agent receives the Jupiter
@@ -62,67 +88,82 @@ def create_agents(enable_trading: bool = False) -> Dict[str, Any]:
     Returns:
         Dict keyed by stage: director, sentiment, quant, risk, execution.
     """
-    from swarms import Agent  # lazy: keeps import market_mind_ai dependency-light
+    from swarms import (
+        Agent,
+    )  # lazy: keeps import market_mind_ai dependency-light
 
     suffix = _system_suffix()
     research_tools = get_research_tools()
     market_tools = get_market_data_tools()
     execution_tools = get_execution_tools() if enable_trading else []
 
+    qwen_model = _get_qwen_model()
+
+    def _agent_kwargs(model_name: str) -> Dict[str, Any]:
+        """Common Agent kwargs; injects Qwen llm when configured."""
+        kwargs: Dict[str, Any] = {
+            "verbose": True,
+            "max_loops": 1,
+            "output_type": "str",
+        }
+        if qwen_model is not None and qwen_model.is_available:
+            kwargs["llm"] = qwen_model
+            kwargs["model_name"] = qwen_model.model or model_name
+        else:
+            kwargs["model_name"] = model_name
+        return kwargs
+
     sentiment_agent = Agent(
         agent_name="Sentiment-Agent",
-        system_prompt=SENTIMENT_PROMPT + "\n\n" + SENTIMENT_JSON_SCHEMA + suffix,
-        model_name="gpt-4o-mini",
-        verbose=True,
-        max_loops=1,
+        system_prompt=SENTIMENT_PROMPT
+        + "\n\n"
+        + SENTIMENT_JSON_SCHEMA
+        + suffix,
         tools=research_tools,
-        output_type="str",
+        **_agent_kwargs("gpt-4o-mini"),
     )
 
     quant_agent = Agent(
         agent_name="Quant-Analyst",
         system_prompt=QUANT_PROMPT.strip()
-        + "\n\n" + QUANT_JSON_SCHEMA + suffix,
-        model_name="gpt-4.1",
-        output_type="str",
-        max_loops=1,
-        verbose=True,
-        context_length=16000,
+        + "\n\n"
+        + QUANT_JSON_SCHEMA
+        + suffix,
         tools=market_tools,
+        context_length=16000,
+        **_agent_kwargs("gpt-4.1"),
     )
 
     risk_agent = Agent(
         agent_name="Risk-Manager",
         system_prompt=RISK_PROMPT.strip()
-        + "\n\n" + RISK_JSON_SCHEMA + suffix,
-        model_name="gpt-4.1",
-        output_type="str",
-        max_loops=1,
-        verbose=True,
-        context_length=16000,
+        + "\n\n"
+        + RISK_JSON_SCHEMA
+        + suffix,
         tools=market_tools,
+        context_length=16000,
+        **_agent_kwargs("gpt-4.1"),
     )
 
     execution_agent = Agent(
         agent_name="Execution-Agent",
         system_prompt=EXECUTION_PROMPT.strip()
-        + "\n\n" + EXECUTION_JSON_SCHEMA + suffix,
-        model_name="gpt-4.1",
-        output_type="str",
-        max_loops=1,
-        verbose=True,
-        context_length=16000,
+        + "\n\n"
+        + EXECUTION_JSON_SCHEMA
+        + suffix,
         tools=execution_tools,
+        context_length=16000,
+        **_agent_kwargs("gpt-4.1"),
     )
 
     director_agent = Agent(
         agent_name="Trading-Director",
-        system_prompt=DIRECTOR_PROMPT + DIRECTOR_FINAL_DECISION_PROMPT + suffix,
-        model_name="gpt-4.1",
-        max_loops=1,
-        verbose=True,
-        context_length=16000,
+        system_prompt=DIRECTOR_PROMPT
+        + DIRECTOR_FINAL_DECISION_PROMPT
+        + suffix,
         tools=research_tools + market_tools,
+        context_length=16000,
+        **_agent_kwargs("gpt-4.1"),
     )
 
     return {
@@ -174,5 +215,10 @@ def __getattr__(name: str) -> Any:
         return get_default_agents()[key]
     if name == "ALL_AGENTS":
         agents = get_default_agents()
-        return [agents[k] for k in ("sentiment", "risk", "execution", "quant")]
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+        return [
+            agents[k]
+            for k in ("sentiment", "risk", "execution", "quant")
+        ]
+    raise AttributeError(
+        f"module {__name__!r} has no attribute {name!r}"
+    )

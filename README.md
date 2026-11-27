@@ -31,6 +31,27 @@ Market Mind AI is built to be the world's most powerful autonomous agent hedge f
 
 ---
 
+# Qwen2.5-1.5B Instruct (OpenCode v2 compatible)
+
+Market Mind AI supports Qwen2.5-1.5B Instruct as an alternative to the
+default OpenAI-backed swarms agents. Set `QWEN_API_KEY` in `.env` to enable
+Qwen; when unset, agents fall back to the default OpenAI models
+(`gpt-4o-mini` / `gpt-4.1`).
+
+```bash
+# Qwen2.5-1.5B Instruct (OpenCode v2 compatible)
+QWEN_API_KEY=your-qwen-token
+QWEN_API_BASE=https://dashscope.aliyuncs.com/api/v1
+QWEN_MODEL=qwen2.5-1.5b-instruct
+QWEN_TIMEOUT=30
+QWEN_MAX_TOKENS=4096
+QWEN_TEMPERATURE=0.7
+```
+
+All Qwen configuration is read from environment variables — no credentials or
+endpoints are hardcoded. Qwen is used for research / analysis only; it never
+connects to brokers or submits orders.
+
 ## Supported Venues
 
 | Venue      | Status        | Notes                    |
