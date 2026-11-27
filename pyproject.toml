@@ -35,6 +35,8 @@ httpx = "*"
 solders = "*"
 yfinance = "*"
 python-dotenv = "*"
+# Used by market_mind_ai/tools/yahoo_api.py; must match requirements.txt.
+requests = "*"
 
 
 [tool.poetry.group.lint.dependencies]

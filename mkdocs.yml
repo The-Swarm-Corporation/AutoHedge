@@ -9,6 +9,7 @@ nav:
   - Home: index.md
   - Architecture: architecture.md
   - Research Pipeline: research-pipeline.md
+  - Maintainer Actions: maintainer-actions.md
 
 plugins:
   - search

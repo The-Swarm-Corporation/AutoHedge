@@ -26,6 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple
 
+from loguru import logger
 from pydantic import BaseModel, Field, field_validator
 
 from market_mind_ai.env_loader import qwen_is_configured
@@ -368,8 +369,21 @@ class ResearchPipeline:
 
     # -- orchestration ---------------------------------------------------- #
     def run(self, query: str) -> ResearchTask:
-        """Run the full workflow. Never raises for model/network failures."""
-        task = self.create_task(query)
+        """Run the full workflow. Never raises for model/network/persistence failures."""
+        try:
+            task = self.create_task(query)
+        except Exception as exc:
+            # Persistence failed before a task could be created. Return an
+            # in-memory failed task so callers still get a typed result.
+            logger.warning("Could not create research task: {}", exc)
+            return ResearchTask(
+                task_id=_task_id(str(query).strip().lower()),
+                query=str(query),
+                state="failed",
+                errors=[f"task creation failed: {exc}"],
+                attempts=1,
+                history=[StateTransition(state="failed", at=_utc_now(), note=str(exc)[:500])],
+            )
         # Duplicate processing guard: terminal states are immutable.
         if task.state in {"completed", "failed"}:
             return task
@@ -414,8 +428,18 @@ class ResearchPipeline:
             return task
         except Exception as exc:
             task.errors.append(str(exc))
-            task.record("failed", str(exc)[:500])
-            self.store.save(task)
+            try:
+                task.record("failed", str(exc)[:500])
+                self.store.save(task)
+            except Exception as save_exc:
+                # Persistence itself failed. Never propagate: return the
+                # in-memory task with both errors recorded so callers can
+                # still observe the failure and audit it.
+                logger.warning(
+                    "Could not persist failed research task {}: {}",
+                    task.task_id,
+                    save_exc,
+                )
             return task
 
     def retry(self, query: str) -> Optional[ResearchTask]:

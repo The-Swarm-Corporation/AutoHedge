@@ -89,5 +89,70 @@ class ResearchApiContractTests(unittest.TestCase):
         self.assertEqual(result.executions, [])
 
 
+class ResearchPersistenceFailureTests(unittest.TestCase):
+    """Regression tests for persistence and store error conditions."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+
+    def test_save_failure_during_normal_flow_records_failed_task(self):
+        from unittest.mock import patch
+
+        store = FileTaskStore(self.tmp.name)
+        p = ResearchPipeline(store=store)
+
+        original = store.save
+        calls = {"n": 0}
+
+        def flaky_save(task):
+            calls["n"] += 1
+            if calls["n"] == 2:
+                raise OSError("disk full")
+            return original(task)
+
+        with patch.object(store, "save", side_effect=flaky_save):
+            task = p.run("Analyze NVDA")
+
+        self.assertEqual(task.state, "failed")
+        self.assertTrue(any("disk full" in e for e in task.errors))
+
+    def test_failure_persist_error_does_not_raise(self):
+        from unittest.mock import patch
+
+        store = FileTaskStore(self.tmp.name)
+        p = ResearchPipeline(store=store)
+
+        def broken_save(task):
+            raise OSError("read-only")
+
+        # All saves fail, including task creation. run() must still return a
+        # typed failed result instead of propagating the persistence error.
+        with patch.object(store, "save", side_effect=broken_save):
+            task = p.run("Analyze NVDA")
+        self.assertEqual(task.state, "failed")
+        self.assertTrue(any("task creation failed" in e for e in task.errors))
+
+    def test_corrupt_existing_task_file_does_not_break_new_task(self):
+        task_id = "deadbeefdeadbeef"
+        (Path(self.tmp.name) / f"{task_id}.json").write_text("garbage")
+        p = ResearchPipeline(store=FileTaskStore(self.tmp.name))
+        task = p.run("Analyze NVDA")
+        self.assertEqual(task.state, "completed")
+
+    def test_dependency_files_declare_runtime_requirements(self):
+        """pyproject and requirements.txt must agree on runtime deps."""
+        root = Path(__file__).resolve().parents[1]
+        req = {
+            line.strip().split("==")[0].split(">=")[0].lower()
+            for line in (root / "requirements.txt").read_text().splitlines()
+            if line.strip() and not line.startswith("#")
+        }
+        pyproject = (root / "pyproject.toml").read_text()
+        for name in ("requests", "httpx", "pydantic", "loguru", "rich"):
+            self.assertIn(name, req, f"{name} missing in requirements.txt")
+            self.assertIn(f'{name} = "*"', pyproject, f"{name} missing in pyproject")
+
+
 if __name__ == "__main__":
     unittest.main()
