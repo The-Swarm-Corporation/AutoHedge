@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus / Systems</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="text-zinc-300 min-h-screen flex flex-col overflow-x-hidden selection:bg-white/20 antialiased">
+
+    <!-- Navbar / Top Brand -->
+    <nav class="w-full relative z-20">
+        <!-- Gradient Border Bottom -->
+        <div class="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-sm tracking-tight font-medium text-white">
+                <iconify-icon icon="solar:atom-linear" width="20"></iconify-icon>
+                <span>NEXUS / CORE</span>
+            </div>
+            <div class="flex items-center gap-6 text-xs font-mono text-zinc-500">
+                <span class="hidden sm:block reveal-text">BUILD.v7.2.1</span>
+                <span class="flex items-center gap-2 text-zinc-400">
+                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span class="reveal-text">ACTIVE</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Layout with Vertical Container Lines -->
+    <main class="flex-grow w-full max-w-7xl mx-auto relative grid grid-cols-1 lg:grid-cols-3">
+        
+        <!-- Gradient Container Borders -->
+        <div class="absolute inset-y-0 left-0 w-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent z-20"></div>
+        <div class="absolute inset-y-0 right-0 w-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent z-20"></div>
+
+        <!-- Decoration: Corner Squares for Container Lines -->
+        <div class="absolute -top-[1px] -left-[3px] w-[5px] h-[5px] bg-white z-20"></div>
+        <div class="absolute -top-[1px] -right-[3px] w-[5px] h-[5px] bg-white z-20"></div>
+        <div class="absolute -bottom-[1px] -left-[3px] w-[5px] h-[5px] bg-white z-20"></div>
+        <div class="absolute -bottom-[1px] -right-[3px] w-[5px] h-[5px] bg-white z-20"></div>
+
+        <!-- Section 01: Hypercube -->
+        <div class="group relative p-8 lg:p-10 flex flex-col justify-between h-[600px] lg:h-[800px] overflow-hidden">
+            <!-- Background Image Aura Asset -->
+            <div class="absolute inset-0 z-0 opacity-[0.08] mix-blend-screen transition-opacity duration-1000 group-hover:opacity-[0.2]" style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg'); background-size: cover; background-position: center;"></div>
+            
+            <!-- Gradient Divider Right -->
+            <div class="hidden lg:block absolute inset-y-0 right-0 w-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent z-20"></div>
+            <!-- Gradient Divider Bottom (Mobile) -->
+            <div class="block lg:hidden absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent z-20"></div>
+
+            <!-- Header -->
+            <div class="relative z-10 flex justify-between items-start font-mono text-xs text-zinc-500 uppercase tracking-widest">
+                <span class="text-zinc-300 font-medium font-sans reveal-text">Prismatic Core</span>
+                <span class="reveal-text">01//</span>
+            </div>
+            
+            <!-- Description Top -->
+            <p class="relative z-10 mt-8 text-xs text-zinc-400 leading-relaxed max-w-[280px] reveal-text">
+                The foundational structure processes raw data streams, organizing chaotic inputs into structured geometric architectures.
+            </p>
+
+            <!-- Visual (Canvas) -->
+            <div data-wireframe-visual class="relative z-10 flex-grow flex items-center justify-center py-12">
+                <canvas id="canvas1" class="w-full max-w-[300px] aspect-square opacity-80 mix-blend-screen"></canvas>
+                <!-- Axis Labels -->
+                <span class="absolute left-0 top-1/2 text-[10px] text-zinc-700 font-mono -translate-y-1/2 reveal-text">Input</span>
+                <span class="absolute right-0 top-1/2 text-[10px] text-zinc-700 font-mono -translate-y-1/2 reveal-text">Output</span>
+            </div>
+
+            <!-- Footer -->
+            <div class="relative z-10 space-y-6">
+                <div class="pt-4 relative">
+                    <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-white/10 to-transparent"></div>
+                    <h3 class="text-sm font-medium text-white mb-2 reveal-text">Sequence: Alpha</h3>
+                    <p class="text-xs text-zinc-500 leading-relaxed reveal-text">
+                        Nexus enables the synthesis of physical and virtual environments, unlocking realms previously hidden from standard view.
+                    </p>
+                </div>
+                <!-- Mini Grid Decor -->
+                <div class="flex justify-end">
+                    <div class="grid grid-cols-4 grid-rows-3 gap-[1px] bg-[#1a1a1c] border border-[#1a1a1c] w-24 h-16 opacity-50">
+                        <div class="bg-[#09090b]"></div><div class="bg-[#09090b]"></div><div class="bg-[#09090b]"></div><div class="bg-[#09090b]"></div>
+                        <div class="bg-[#09090b]"></div><div class="bg-[#09090b]"></div><div class="bg-[#09090b] flex items-center justify-center"><div class="w-1 h-1 bg-white rounded-full"></div></div><div class="bg-[#09090b]"></div>
+                        <div class="bg-[#09090b]"></div><div class="bg-[#09090b]"></div><div class="bg-[#09090b]"></div><div class="bg-[#09090b]"></div>
+                    </div>
+                </div>
+                <div class="flex justify-between items-end font-mono text-[10px] text-zinc-600">
+                    <span class="reveal-text">Nexus.sys</span>
+                    <span class="reveal-text">V-00.XX.1024</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 02: Logic Cylinders -->
+        <div class="group relative p-8 lg:p-10 flex flex-col justify-between h-[600px] lg:h-[800px] overflow-hidden">
+            <!-- Background Image Aura Asset -->
+            <div class="absolute inset-0 z-0 opacity-[0.08] mix-blend-screen transition-opacity duration-1000 group-hover:opacity-[0.2]" style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/e534354d-c5f2-4399-a1d9-2f50338e8c47_1600w.jpg'); background-size: cover; background-position: center;"></div>
+            
+            <!-- Gradient Divider Right -->
+            <div class="hidden lg:block absolute inset-y-0 right-0 w-[1px] bg-gradient-to-b from-white/10 via-white/5 to-transparent z-20"></div>
+            <!-- Gradient Divider Bottom (Mobile) -->
+            <div class="block lg:hidden absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent z-20"></div>
+
+            <div class="relative z-10 flex justify-between items-start font-mono text-xs text-zinc-500 uppercase tracking-widest">
+                <span class="text-zinc-300 font-medium font-sans reveal-text">Cognitive Mesh</span>
+                <span class="reveal-text">02//</span>
+            </div>
+
+            <p class="relative z-10 mt-8 text-xs text-zinc-400 leading-relaxed max-w-[280px] reveal-text">
+                Data flow stems from legacy nodes. An interface born from overlapping algorithms and encrypted keys.
+            </p>
+
+            <div data-wireframe-visual class="relative z-10 flex-grow flex items-center justify-center py-12">
+                <canvas id="canvas2" class="w-full max-w-[300px] aspect-square opacity-80 mix-blend-screen"></canvas>
+                <!-- Floating Glyphs -->
+                <div class="absolute inset-0 flex items-center justify-center gap-16 pointer-events-none">
+                    <iconify-icon icon="solar:code-scan-linear" class="text-white/20 text-4xl animate-[pulse_4s_ease-in-out_infinite]"></iconify-icon>
+                    <iconify-icon icon="solar:database-linear" class="text-white/20 text-4xl animate-[pulse_4s_ease-in-out_infinite] animation-delay-2000"></iconify-icon>
+                </div>
+            </div>
+
+            <div class="relative z-10 space-y-6">
+                <div class="text-right">
+                    <p class="text-xs text-zinc-500 leading-relaxed max-w-[240px] ml-auto reveal-text">
+                        Within Nexus, metrics are redefined: bridging analytical processing and immersive interaction. The ultimate signature of digital evolution.
+                    </p>
+                </div>
+                <div class="relative flex justify-between items-end font-mono text-[10px] text-zinc-600 pt-12">
+                    <div class="absolute top-0 right-0 left-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    <span class="reveal-text">Nexus.sys</span>
+                    <span class="reveal-text">SYS.MEM.OVERFLOW</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 03: Esoteric Sphere -->
+        <div class="group relative p-8 lg:p-10 flex flex-col justify-between h-[600px] lg:h-[800px] overflow-hidden">
+            <!-- Background Image Aura Asset -->
+            <div class="absolute inset-0 z-0 opacity-[0.08] mix-blend-screen transition-opacity duration-1000 group-hover:opacity-[0.2]" style="background-image: url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/fa51902b-c2a4-4c33-a96e-a8f1ef67edc6_1600w.jpg'); background-size: cover; background-position: center;"></div>
+
+            <div class="relative z-10 flex justify-between items-start font-mono text-xs text-zinc-500 uppercase tracking-widest">
+                <span class="text-zinc-300 font-medium font-sans reveal-text">Kinetic Frequency</span>
+                <span class="reveal-text">03//</span>
+            </div>
+
+            <p class="relative z-10 mt-8 text-xs text-zinc-400 leading-relaxed max-w-[280px] reveal-text">
+                "Frequency" denotes the synchronization of fragmented data packets, individuals, or systems oscillating at parallel states.
+            </p>
+
+            <div data-wireframe-visual class="relative z-10 flex-grow flex items-center justify-center py-12">
+                <canvas id="canvas3" class="w-full max-w-[300px] aspect-square opacity-80 mix-blend-screen"></canvas>
+            </div>
+
+            <div class="relative z-10 space-y-6">
+                 <div class="pt-4 relative">
+                    <div class="absolute top-0 right-0 left-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+                    <h3 class="text-sm font-medium text-white mb-2 reveal-text">State: Synchronized</h3>
+                    <p class="text-xs text-zinc-500 leading-relaxed reveal-text">
+                        Frequency: Data equals the juncture between pure logic and tactile feedback. Tuning to optimal processing bandwidths.
+                    </p>
+                </div>
+                <div class="flex justify-between items-end font-mono text-[10px] text-zinc-600">
+                    <div class="flex gap-2">
+                        <span class="w-2 h-2 rounded-full border border-zinc-700"></span>
+                        <span class="w-2 h-2 rounded-full border border-zinc-700 bg-white/20"></span>
+                        <span class="w-2 h-2 rounded-full border border-zinc-700"></span>
+                    </div>
+                    <span class="reveal-text">Nexus.sys</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Interface Bar -->
+    <footer class="w-full relative z-20 bg-[#09090b]">
+        <div class="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+        <div class="max-w-7xl mx-auto px-6 h-12 flex items-center justify-between font-mono text-[10px] text-zinc-600 uppercase">
+            <div class="flex items-center gap-4">
+                <span class="reveal-text">Ping: 2ms</span>
+                <span class="hidden sm:inline reveal-text">Cipher: RSA-4096</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="#" class="hover:text-white transition-colors">Privacy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms</a>
+                <a href="#" class="hover:text-white transition-colors">Doctrine</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WebGL-like Canvas Animation Script & GSAP Reveal -->
+    <script>
+        // GSAP ScrollTrigger Text Reveal
+        gsap.registerPlugin(ScrollTrigger);
+        
+        document.querySelectorAll('.reveal-text').forEach(el => {
+            const text = el.innerText.trim();
+            const words = text.split(/\s+/);
+            el.innerHTML = words.map(word => 
+                `<span style="overflow: hidden; display: inline-block; vertical-align: top;"><span style="display: inline-block; transform: translateY(100%);" class="reveal-word">${word}</span></span>`
+            ).join(' ');
+
+            gsap.to(el.querySelectorAll('.reveal-word'), {
+                y: '0%',
+                duration: 0.8,
+                stagger: 0.03,
+                ease: 'power3.out',
+                scrollTrigger: {
+                    trigger: el,
+                    start: 'top 95%',
+                    toggleActions: 'play none none none'
+                }
+            });
+        });
+
+        // Wireframe Engine
+        class WireframeEngine {
+            constructor(canvasId, shapeType) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.width = this.canvas.offsetWidth;
+                this.height = this.canvas.offsetHeight;
+                this.canvas.width = this.width * 2; 
+                this.canvas.height = this.height * 2;
+                this.ctx.scale(2, 2);
+                this.cx = this.width / 2;
+                this.cy = this.height / 2;
+                this.shapeType = shapeType;
+                
+                this.points = [];
+                this.edges = [];
+                this.angleX = 0;
+                this.angleY = 0;
+                
+                this.initShape();
+                this.animate();
+            }
+
+            initShape() {
+                if (this.shapeType === 'cube') {
+                    const s = 80;
+                    this.points.push({x: s, y: s, z: s}, {x: -s, y: -s, z: s}, {x: -s, y: s, z: -s}, {x: s, y: -s, z: -s});
+                    this.points.push({x: -s, y: -s, z: -s}, {x: s, y: s, z: -s}, {x: s, y: -s, z: s}, {x: -s, y: s, z: s});
+                    this.edges.push([0,1], [0,2], [0,3], [1,2], [1,3], [2,3]);
+                    this.edges.push([4,5], [4,6], [4,7], [5,6], [5,7], [6,7]);
+                } else if (this.shapeType === 'cylinders') {
+                    const r = 70;
+                    const segments = 24;
+                    for(let i=0; i<segments; i++) {
+                        const theta = (i/segments) * Math.PI * 2;
+                        this.points.push({ x: Math.cos(theta)*r, y: Math.sin(theta)*r, z: -30 });
+                        this.points.push({ x: Math.cos(theta)*r, y: Math.sin(theta)*r, z: 30 });
+                        let next = (i+1)%segments;
+                        this.edges.push([i*2, next*2], [i*2+1, next*2+1], [i*2, i*2+1]);
+                    }
+                     let offset = this.points.length;
+                     for(let i=0; i<segments; i++) {
+                        const theta = (i/segments) * Math.PI * 2;
+                        this.points.push({ x: Math.cos(theta)*r, y: -30, z: Math.sin(theta)*r });
+                        this.points.push({ x: Math.cos(theta)*r, y: 30, z: Math.sin(theta)*r });
+                        let next = (i+1)%segments;
+                        this.edges.push([offset + i*2, offset + next*2], [offset + i*2+1, offset + next*2+1], [offset + i*2, offset + i*2+1]);
+                    }
+                } else if (this.shapeType === 'sphere') {
+                    const t = (1.0 + Math.sqrt(5.0)) / 2.0;
+                    const s = 50; 
+                    const p = [
+                        [-1,  t,  0], [ 1,  t,  0], [-1, -t,  0], [ 1, -t,  0],
+                        [ 0, -1,  t], [ 0,  1,  t], [ 0, -1, -t], [ 0,  1, -t],
+                        [ t,  0, -1], [ t,  0,  1], [-t,  0, -1], [-t,  0,  1]
+                    ];
+                    p.forEach(v => this.points.push({x: v[0]*s, y: v[1]*s, z: v[2]*s}));
+                    for(let i=0; i<this.points.length; i++){
+                        for(let j=i+1; j<this.points.length; j++){
+                            let d = Math.hypot(this.points[i].x - this.points[j].x, this.points[i].y - this.points[j].y, this.points[i].z - this.points[j].z);
+                            if(d < s*2.1) this.edges.push([i,j]);
+                        }
+                    }
+                     p.forEach(v => this.points.push({x: v[0]*s*0.5, y: v[1]*s*0.5, z: v[2]*s*0.5}));
+                     let off = 12;
+                     for(let i=0; i<12; i++){
+                        for(let j=i+1; j<12; j++){
+                            let d = Math.hypot(this.points[off+i].x - this.points[off+j].x, this.points[off+i].y - this.points[off+j].y, this.points[off+i].z - this.points[off+j].z);
+                            if(d < s*1.1) this.edges.push([off+i,off+j]);
+                        }
+                        this.edges.push([i, off+i]); 
+                     }
+                }
+            }
+
+            project(p) {
+                let x = p.x * Math.cos(this.angleY) - p.z * Math.sin(this.angleY);
+                let z = p.z * Math.cos(this.angleY) + p.x * Math.sin(this.angleY);
+                let y = p.y * Math.cos(this.angleX) - z * Math.sin(this.angleX);
+                z = z * Math.cos(this.angleX) + p.y * Math.sin(this.angleX);
+                
+                let fov = 400;
+                let scale = fov / (fov + z);
+                return { x: x * scale + this.cx, y: y * scale + this.cy, z: z };
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+                this.angleY += 0.005;
+                this.angleX += 0.002;
+                
+                this.ctx.lineWidth = 0.8;
+
+                let projected = this.points.map(p => this.project(p));
+
+                this.edges.forEach(e => {
+                    let p1 = projected[e[0]];
+                    let p2 = projected[e[1]];
+                    let depth = (p1.z + p2.z) / 2;
+                    let alpha = Math.max(0.1, (1 - (depth / 200)));
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(p1.x, p1.y);
+                    this.ctx.lineTo(p2.x, p2.y);
+                    this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.4})`;
+                    this.ctx.stroke();
+                });
+
+                projected.forEach(p => {
+                    let alpha = Math.max(0.1, (1 - (p.z / 200)));
+                    if (alpha > 0.5) {
+                        this.ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+                        this.ctx.fillRect(p.x-1, p.y-1, 2, 2);
+                    }
+                });
+
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        window.onload = () => {
+            new WireframeEngine('canvas1', 'cube');
+            new WireframeEngine('canvas2', 'cylinders');
+            new WireframeEngine('canvas3', 'sphere');
+        };
+    </script>
+</body>
+</html>

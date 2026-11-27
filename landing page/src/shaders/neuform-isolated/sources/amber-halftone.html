@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aegis Security - Remixed Bento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Space+Mono&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#111111] text-black antialiased min-h-screen flex items-center justify-center p-4 md:p-8 lg:p-12 overflow-x-hidden selection:bg-yellow-300 selection:text-black" style="font-family: 'Space Mono', monospace;">
+
+    <!-- Bento Grid Container -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 w-full max-w-5xl mx-auto min-h-[85vh] py-8">
+        
+        <!-- Card 1: Grainy / Light (Black Globe) -->
+        <article class="col-span-1 relative w-full h-[500px] md:h-auto min-h-[450px] rounded-[2rem] flex flex-col justify-between p-8 overflow-hidden shadow-2xl border border-transparent" style="background: linear-gradient(#f4f4f0, #f4f4f0) padding-box, linear-gradient(135deg, #ffffff 0%, #d1d5db 100%) border-box;">
+            <!-- Noise Overlay -->
+            <div class="absolute inset-0 z-10 pointer-events-none opacity-[0.15]" style="background-image: url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E'); mix-blend-mode: multiply;"></div>
+            
+            <!-- WebGL Background -->
+            <div class="absolute inset-0 z-0 top-1/4">
+                <canvas id="webgl-lines" class="w-full h-full opacity-60"></canvas>
+            </div>
+
+            <!-- Header -->
+            <header class="relative z-20 flex justify-between items-center text-sm tracking-tight font-normal">
+                <div class="flex items-center gap-1.5">
+                    <iconify-icon icon="solar:shield-network-linear" width="20" height="20" style="stroke-width: 1.5;"></iconify-icon>
+                    <span>aegis</span>
+                </div>
+                <span class="text-xs opacity-50 uppercase tracking-widest">Sector.01</span>
+            </header>
+
+            <!-- Main Content -->
+            <main class="relative z-20 mt-auto">
+                <h2 class="text-3xl md:text-4xl tracking-tight leading-[1.1] mb-4 masked-reveal">
+                    Absolute stealth.<br>Zero presence.
+                </h2>
+                <p class="text-xs leading-relaxed font-sans max-w-[220px] text-black/70 masked-reveal" style="font-family: 'Inter', sans-serif;">
+                    Your network footprint.<br>Entirely eradicated.
+                </p>
+            </main>
+        </article>
+
+        <!-- Card 2: Yellow Grid + Aura Asset Image -->
+        <article class="col-span-1 relative w-full h-[500px] md:h-auto min-h-[450px] rounded-[2rem] flex flex-col justify-between p-8 overflow-hidden shadow-2xl border border-transparent" style="background: linear-gradient(#FDE047, #FDE047) padding-box, linear-gradient(135deg, rgba(255,255,255,0.6) 0%, rgba(202,138,4,0.4) 100%) border-box;">
+            
+            <!-- Aura Asset Image Background -->
+            <div class="absolute inset-0 z-0 opacity-40 mix-blend-multiply pointer-events-none">
+                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/724142aa-44a6-48d3-9cf3-761e00d05b78_1600w.jpg" class="w-full h-full object-cover" alt="Futuristic Deconstructed Pyramid">
+            </div>
+
+            <!-- Grid Background Overlay -->
+            <div class="absolute inset-0 z-0 opacity-[0.15] pointer-events-none" style="background-image: linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px); background-size: 1.5rem 1.5rem;"></div>
+
+            <!-- Header -->
+            <header class="relative z-20 flex justify-between items-center text-sm tracking-tight font-normal">
+                <div class="flex items-center gap-1.5">
+                    <iconify-icon icon="solar:shield-network-linear" width="20" height="20" style="stroke-width: 1.5;"></iconify-icon>
+                    <span>aegis</span>
+                </div>
+                <span class="text-xs opacity-50 uppercase tracking-widest">Sector.02</span>
+            </header>
+
+            <!-- Main Content -->
+            <main class="relative z-20 mt-auto">
+                <h2 class="text-3xl md:text-4xl tracking-tight leading-[1.1] masked-reveal">
+                    Adaptive shields.<br>Total autonomy.
+                </h2>
+            </main>
+        </article>
+
+        <!-- Card 3: Black Halftone -->
+        <article class="col-span-1 md:col-span-2 relative w-full h-[450px] md:h-[350px] rounded-[2rem] flex flex-col md:flex-row justify-between p-8 overflow-hidden text-white shadow-2xl border border-transparent" style="font-family: 'Inter', sans-serif; background: linear-gradient(#0A0A0A, #0A0A0A) padding-box, linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%) border-box;">
+            
+            <!-- WebGL Halftone Background -->
+            <div class="absolute inset-0 z-0 md:left-1/3 pointer-events-none">
+                <canvas id="webgl-halftone" class="w-full h-full"></canvas>
+            </div>
+
+            <!-- Header (Left on desktop) -->
+            <header class="relative z-20 flex md:flex-col justify-between md:justify-start items-center md:items-start text-sm tracking-tight font-normal text-white/90 gap-4" style="font-family: 'Space Mono', monospace;">
+                <div class="flex items-center gap-1.5">
+                    <iconify-icon icon="solar:shield-network-linear" width="20" height="20" class="text-yellow-400" style="stroke-width: 1.5;"></iconify-icon>
+                    <span>aegis</span>
+                </div>
+                <span class="text-xs opacity-50 uppercase tracking-widest">Sector.03</span>
+            </header>
+
+            <!-- Main Content (Right on desktop) -->
+            <main class="relative z-20 mt-auto md:mt-0 md:self-end md:text-right max-w-md w-full">
+                <h2 class="text-4xl md:text-5xl tracking-tight leading-[1.1] font-normal mb-4 md:mb-6 uppercase masked-reveal">
+                    Quantum<br>Core.
+                </h2>
+                <p class="text-xs leading-relaxed text-white/70 md:ml-auto md:max-w-[240px] masked-reveal" style="font-family: 'Space Mono', monospace;">
+                    Next-gen cryptography<br>for modern infrastructure.
+                </p>
+            </main>
+        </article>
+
+    </div>
+
+    <script>
+        // GSAP ScrollTrigger Setup
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Utility: Split text into words and wrap for masking
+        function wrapWords(element) {
+            const text = element.innerHTML;
+            const words = text.split(/(<br>|\s+)/).filter(Boolean);
+            element.innerHTML = '';
+            
+            words.forEach(word => {
+                if (word === '<br>') {
+                    element.appendChild(document.createElement('br'));
+                    return;
+                }
+                if (word.trim() === '') {
+                    element.appendChild(document.createTextNode(' '));
+                    return;
+                }
+
+                const outerSpan = document.createElement('span');
+                outerSpan.style.display = 'inline-block';
+                outerSpan.style.overflow = 'hidden';
+                outerSpan.style.verticalAlign = 'bottom';
+                outerSpan.style.paddingBottom = '0.1em'; // Prevent clipping on descenders
+
+                const innerSpan = document.createElement('span');
+                innerSpan.style.display = 'inline-block';
+                innerSpan.innerHTML = word;
+                innerSpan.classList.add('reveal-target');
+                innerSpan.style.transform = 'translateY(110%)';
+                innerSpan.style.willChange = 'transform';
+
+                outerSpan.appendChild(innerSpan);
+                element.appendChild(outerSpan);
+            });
+        }
+
+        // Apply masking structure and animation
+        document.querySelectorAll('.masked-reveal').forEach(el => {
+            wrapWords(el);
+            
+            gsap.to(el.querySelectorAll('.reveal-target'), {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 90%",
+                    toggleActions: "play none none reverse"
+                },
+                y: "0%",
+                duration: 0.85,
+                ease: "power4.out",
+                stagger: 0.04
+            });
+        });
+
+        /* --- WebGL Section 1: Abstract Lines --- */
+        const initLinesWebGL = () => {
+            const canvas = document.getElementById('webgl-lines');
+            if(!canvas) return;
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+            
+            const resize = () => {
+                const parent = canvas.parentElement;
+                const width = parent.clientWidth;
+                const height = parent.clientHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            };
+            window.addEventListener('resize', resize);
+            resize();
+
+            camera.position.z = 4.5;
+
+            const group = new THREE.Group();
+            scene.add(group);
+
+            const material = new THREE.LineBasicMaterial({ color: 0x111111, transparent: true, opacity: 0.85 }); 
+            const particlesCount = 200;
+            
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particlesCount * 3);
+            
+            for(let i = 0; i < particlesCount * 3; i+=3) {
+                const r = 2.5;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                
+                positions[i] = r * Math.sin(phi) * Math.cos(theta);
+                positions[i+1] = r * Math.sin(phi) * Math.sin(theta);
+                positions[i+2] = r * Math.cos(phi);
+            }
+            
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            
+            const index = [];
+            for (let i = 0; i < particlesCount; i++) {
+                for (let j = i + 1; j < particlesCount; j++) {
+                    const dx = positions[i*3] - positions[j*3];
+                    const dy = positions[i*3+1] - positions[j*3+1];
+                    const dz = positions[i*3+2] - positions[j*3+2];
+                    const distSq = dx*dx + dy*dy + dz*dz;
+                    if (distSq < 1.2) { 
+                        index.push(i, j);
+                    }
+                }
+            }
+            geometry.setIndex(index);
+            
+            const lines = new THREE.LineSegments(geometry, material);
+            group.add(lines);
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                group.rotation.y += 0.002;
+                group.rotation.x += 0.001;
+                renderer.render(scene, camera);
+            };
+            animate();
+        };
+
+        /* --- WebGL Section 3: Animated Halftone --- */
+        const initHalftoneWebGL = () => {
+            const canvas = document.getElementById('webgl-halftone');
+            if(!canvas) return;
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setClearColor(0x0A0A0A, 1);
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+            
+            const resize = () => {
+                const parent = canvas.parentElement;
+                const width = Math.max(1, (parent && parent.clientWidth) || window.innerWidth || canvas.clientWidth || 1);
+                const height = Math.max(1, (parent && parent.clientHeight) || window.innerHeight || canvas.clientHeight || 1);
+                renderer.setSize(width, height, false);
+                canvas.style.width = '100%';
+                canvas.style.height = '100%';
+                const aspect = width / height;
+                camera.left = -aspect;
+                camera.right = aspect;
+                camera.bottom = -1;
+                camera.top = 1;
+                camera.updateProjectionMatrix();
+            };
+            window.addEventListener('resize', resize);
+            resize();
+            camera.position.z = 1;
+
+            const gridSize = 20;
+            const geometry = new THREE.BufferGeometry();
+            const positions = [];
+            const scales = [];
+
+            for (let x = -gridSize; x <= gridSize; x++) {
+                for (let y = -gridSize; y <= gridSize; y++) {
+                    positions.push(x * 0.15, y * 0.15, 0);
+                    scales.push(1); 
+                }
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    color1: { value: new THREE.Color(0xFBBF24) }, 
+                    color2: { value: new THREE.Color(0xFFFFFF) }
+                },
+                vertexShader: `
+                    attribute float scale;
+                    varying vec2 vUv;
+                    varying float vScale;
+                    uniform float time;
+                    
+                    void main() {
+                        vUv = position.xy;
+                        float dist = length(position.xy);
+                        float animatedScale = scale * (sin(dist * 6.0 - time * 2.5) * 0.5 + 0.5);
+                        vScale = animatedScale;
+                        
+                        gl_PointSize = animatedScale * 5.0; 
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform vec3 color1;
+                    uniform vec3 color2;
+                    varying vec2 vUv;
+                    varying float vScale;
+                    
+                    void main() {
+                        vec2 coord = gl_PointCoord - vec2(0.5);
+                        if(length(coord) > 0.5) discard;
+                        
+                        vec3 finalColor = mix(color2, color1, (vUv.y + 1.0) * 0.5);
+                        gl_FragColor = vec4(finalColor, vScale * 0.9);
+                    }
+                `,
+                transparent: true
+            });
+
+            const points = new THREE.Points(geometry, material);
+            scene.add(points);
+
+            const clock = new THREE.Clock();
+            const animate = () => {
+                requestAnimationFrame(animate);
+                material.uniforms.time.value = clock.getElapsedTime();
+                renderer.render(scene, camera);
+            };
+            animate();
+        };
+
+        // Initialize WebGL instances
+        initLinesWebGL();
+        initHalftoneWebGL();
+    </script>
+</body>
+</html>

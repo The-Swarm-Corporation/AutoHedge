@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Matrix State</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Geist:wght@300;400&family=Gloock&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#050505] text-white h-screen w-screen overflow-hidden relative selection:bg-white/20 selection:text-white">
+    
+    <!-- WebGL Background Canvas -->
+    <canvas id="glcanvas" class="absolute inset-0 z-0 w-full h-full"></canvas>
+
+    <!-- Aura Asset Image Overlay (Mix Blend Texture) -->
+    <div class="absolute inset-0 z-10 opacity-30 mix-blend-screen pointer-events-none bg-[url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/fa51902b-c2a4-4c33-a96e-a8f1ef67edc6_1600w.jpg')] bg-cover bg-center"></div>
+
+    <!-- Structural Framing Lines with Corner Squares -->
+    <div class="absolute inset-6 md:inset-12 border border-white/10 pointer-events-none z-20 transition-all duration-1000 fade-target" style="opacity: 0;">
+        <div class="absolute -top-1 -left-1 w-2 h-2 border border-white/30 bg-[#050505]"></div>
+        <div class="absolute -top-1 -right-1 w-2 h-2 border border-white/30 bg-[#050505]"></div>
+        <div class="absolute -bottom-1 -left-1 w-2 h-2 border border-white/30 bg-[#050505]"></div>
+        <div class="absolute -bottom-1 -right-1 w-2 h-2 border border-white/30 bg-[#050505]"></div>
+    </div>
+
+    <!-- Main Content Overlay -->
+    <main class="absolute inset-0 z-30 p-12 md:p-20 flex flex-col justify-between pointer-events-none">
+        
+        <!-- Top Row: Editorial Grid Metadata -->
+        <header class="grid grid-cols-2 md:grid-cols-3 w-full gap-8 fade-target transition-all duration-1000 ease-out font-['DM_Mono'] uppercase" style="opacity: 0; transform: translateY(10px);">
+            <div class="flex flex-col gap-2 text-xs text-gray-500 tracking-widest font-light">
+                <span class="text-gray-200">SYSTEM — 09</span>
+                <span>NETWORK UPLINK</span>
+            </div>
+            <div class="hidden md:flex flex-col gap-2 text-xs text-gray-500 tracking-widest font-light text-center">
+                <span class="text-gray-200">PING 1.2MS</span>
+                <span>SYNC COMPLETE</span>
+            </div>
+            <div class="flex flex-col gap-2 text-xs text-gray-500 tracking-widest font-light text-right">
+                <span class="text-gray-200">SECURITY</span>
+                <span>SECURED</span>
+            </div>
+        </header>
+
+        <!-- Middle: Dashboard Layout -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center w-full gap-12 md:gap-8 fade-target transition-all duration-1000 ease-out flex-1 mt-12 md:mt-0" style="opacity: 0; transform: translateY(10px);">
+            
+            <!-- Left: Title & Context -->
+            <section class="flex-shrink-0 z-40 pointer-events-auto">
+                <h2 class="font-['Gloock'] text-5xl md:text-7xl font-normal tracking-tight text-white leading-none uppercase">
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">QUANTUM</span></span><br>
+                    <span class="inline-block overflow-hidden align-bottom italic text-gray-300 pr-4"><span class="reveal-word inline-block translate-y-full">MATRIX</span></span>
+                </h2>
+                <p class="font-['Geist'] text-sm text-gray-400 mt-6 max-w-xs font-light leading-relaxed">
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">Continuous</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">monitoring</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">of</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">decentralized</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">server</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">arrays.</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">All</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">telemetry</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">data</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">is</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">perfectly</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">synchronized</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">across</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">the</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">global</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">infrastructure</span></span>
+                    <span class="inline-block overflow-hidden align-bottom"><span class="reveal-word inline-block translate-y-full">network.</span></span>
+                </p>
+            </section>
+
+            <!-- Right: Telemetry Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl pointer-events-auto font-['Geist'] z-40">
+                <!-- Metric Card 1 -->
+                <div class="p-[1px] bg-gradient-to-br from-white/30 via-white/5 to-transparent h-full">
+                    <div class="bg-[#050505]/70 backdrop-blur-md p-5 flex flex-col gap-4 hover:bg-white/5 transition-colors duration-500 h-full">
+                        <div class="flex justify-between items-center text-xs font-['DM_Mono'] text-gray-400 tracking-widest uppercase">
+                            <span>Bandwidth</span>
+                            <iconify-icon icon="solar:graph-up-linear" stroke-width="1.5" class="text-base text-gray-200"></iconify-icon>
+                        </div>
+                        <div class="text-3xl font-normal tracking-tight text-white">142.8<span class="text-sm text-gray-500 ml-1 font-light">GB/s</span></div>
+                        <div class="w-full h-0.5 bg-white/10 mt-2">
+                            <div class="h-full bg-gray-300 w-[88%]"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Metric Card 2 -->
+                <div class="p-[1px] bg-gradient-to-br from-white/30 via-white/5 to-transparent h-full">
+                    <div class="bg-[#050505]/70 backdrop-blur-md p-5 flex flex-col gap-4 hover:bg-white/5 transition-colors duration-500 h-full">
+                        <div class="flex justify-between items-center text-xs font-['DM_Mono'] text-gray-400 tracking-widest uppercase">
+                            <span>Server Uplinks</span>
+                            <iconify-icon icon="solar:server-square-linear" stroke-width="1.5" class="text-base text-gray-200"></iconify-icon>
+                        </div>
+                        <div class="text-3xl font-normal tracking-tight text-white">8,192</div>
+                        <div class="flex items-end gap-1 h-4 mt-2 opacity-70">
+                            <div class="w-full bg-white/20 h-1/2"></div>
+                            <div class="w-full bg-white/40 h-3/4"></div>
+                            <div class="w-full bg-white/30 h-1/3"></div>
+                            <div class="w-full bg-white/60 h-full"></div>
+                            <div class="w-full bg-white/50 h-2/3"></div>
+                            <div class="w-full bg-white/80 h-[90%]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric Card 3 -->
+                <div class="p-[1px] bg-gradient-to-br from-white/30 via-white/5 to-transparent h-full">
+                    <div class="bg-[#050505]/70 backdrop-blur-md p-5 flex flex-col gap-4 hover:bg-white/5 transition-colors duration-500 h-full">
+                        <div class="flex justify-between items-center text-xs font-['DM_Mono'] text-gray-400 tracking-widest uppercase">
+                            <span>Health</span>
+                            <div class="w-1.5 h-1.5 rounded-full bg-gray-200 animate-pulse"></div>
+                        </div>
+                        <div class="text-xl font-normal tracking-tight text-gray-200 leading-snug mt-auto">
+                            Systems nominal across all primary regions.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metric Card 4 -->
+                <div class="p-[1px] bg-gradient-to-br from-white/30 via-white/5 to-transparent h-full">
+                    <div class="bg-[#050505]/70 backdrop-blur-md p-5 flex flex-col gap-4 hover:bg-white/5 transition-colors duration-500 h-full">
+                        <div class="flex justify-between items-center text-xs font-['DM_Mono'] text-gray-400 tracking-widest uppercase">
+                            <span>Firewalls</span>
+                            <iconify-icon icon="solar:shield-check-linear" stroke-width="1.5" class="text-base text-gray-200"></iconify-icon>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mt-auto font-['DM_Mono']">
+                            <span class="text-xs border border-white/10 px-2 py-1 text-gray-300">AES-256</span>
+                            <span class="text-xs border border-white/10 px-2 py-1 text-gray-300">BIOMETRIC</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Row: Status Footer -->
+        <footer class="w-full flex justify-between items-end fade-target transition-all duration-1000 ease-out mt-8" style="opacity: 0; transform: translateY(10px);">
+            <div class="flex items-center gap-3 text-xs text-gray-500 tracking-widest font-['DM_Mono'] uppercase font-light">
+                <iconify-icon icon="solar:radar-linear" stroke-width="1.5" class="text-lg text-gray-200"></iconify-icon>
+                <span class="hidden md:inline">MONITORING SECTORS</span>
+            </div>
+            <div class="flex flex-col gap-2 text-xs text-gray-500 tracking-widest font-['DM_Mono'] uppercase font-light text-right">
+                <span class="text-gray-200">ROOT.USER</span>
+                <span>SESSION ACTIVE</span>
+            </div>
+        </footer>
+    </main>
+
+    <!-- UI Animation Logic -->
+    <script>
+        window.addEventListener('load', () => {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Initial UI fade
+            document.querySelectorAll('.fade-target').forEach((el, i) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, i * 150 + 100);
+            });
+
+            // Masked word reveal
+            gsap.to('.reveal-word', {
+                scrollTrigger: {
+                    trigger: '.reveal-word',
+                    start: 'top 95%',
+                },
+                y: '0%',
+                duration: 0.8,
+                stagger: 0.03,
+                ease: 'power4.out',
+                delay: 0.3
+            });
+        });
+    </script>
+
+    <!-- WebGL Logic -->
+    <script>
+        const canvas = document.getElementById('glcanvas');
+        const gl = canvas.getContext('webgl');
+
+        let mouseX = -1000, mouseY = -1000;
+        let lastMouseMove = 0;
+        let currentMouseActive = 0.0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = canvas.clientHeight - e.clientY;
+            lastMouseMove = Date.now();
+        });
+
+        const vsSource = `
+            attribute vec4 aVertexPosition;
+            void main() {
+                gl_Position = aVertexPosition;
+            }
+        `;
+
+        const fsSource = `
+            precision highp float;
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            uniform vec2 u_mouse;
+            uniform float u_mouseActive;
+
+            float hash(float n) { return fract(sin(n)*753.5453123); }
+            float noise(float x) {
+                float i = floor(x);
+                float f = fract(x);
+                f = f*f*(3.0-2.0*f);
+                return mix(hash(i), hash(i+1.0), f);
+            }
+
+            vec2 sdLine(vec2 p, vec2 a, vec2 b) {
+                vec2 pa = p - a, ba = b - a;
+                float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+                return vec2(length(pa - ba * h), h);
+            }
+
+            float lightning(vec2 uv, vec2 a, vec2 b, float t) {
+                vec2 ab = b - a;
+                float len = length(ab);
+                if(len < 0.01) return 0.0;
+                vec2 dir = ab / len;
+                
+                vec2 pa = uv - a;
+                float h = clamp(dot(pa, dir) / len, 0.0, 1.0);
+                float dist = length(pa - dir * (h * len));
+                
+                float env = sin(h * 3.1415);
+                
+                float offset = (noise(h * 25.0 - t * 35.0) - 0.5) * 0.08 * env;
+                offset += (noise(h * 70.0 + t * 50.0) - 0.5) * 0.02 * env;
+                
+                float d = abs(dist + offset);
+                
+                return (0.0002 / (d + 0.0002) + 0.00001 / (d*d + 0.00001)) * env;
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+                uv = uv * 2.0 - 1.0;
+                uv.x *= u_resolution.x / u_resolution.y;
+
+                vec2 mouseUV = u_mouse / u_resolution.xy;
+                mouseUV = mouseUV * 2.0 - 1.0;
+                mouseUV.x *= u_resolution.x / u_resolution.y;
+
+                vec2 center = vec2(-0.8, -0.2);
+                center.x += sin(u_time * 0.4) * 0.03;
+                center.y += cos(u_time * 0.3) * 0.03;
+
+                vec2 dirUp = normalize(vec2(0.15, 1.0));
+                vec2 dirRight = normalize(vec2(1.0, -0.25));
+                vec2 dirDownLeft = normalize(vec2(-0.8, -0.6));
+
+                vec2 l1 = sdLine(uv, center, center + dirUp * 5.0);
+                vec2 l2 = sdLine(uv, center, center + dirRight * 5.0);
+                vec2 l3 = sdLine(uv, center, center + dirDownLeft * 5.0);
+
+                float intensity = 0.006;
+                float glow = intensity / (l1.x + 0.001) +
+                             intensity / (l2.x + 0.001) +
+                             (intensity * 0.4) / (l3.x + 0.001);
+
+                float pulse1 = smoothstep(0.1, 0.0, abs(l1.y - fract(u_time * 0.4))) * 0.03 / (l1.x + 0.001);
+                float pulse2 = smoothstep(0.1, 0.0, abs(l2.y - fract(u_time * 0.5 + 0.3))) * 0.03 / (l2.x + 0.001);
+                float pulse3 = smoothstep(0.1, 0.0, abs(l3.y - fract(u_time * 0.3 + 0.7))) * 0.015 / (l3.x + 0.001);
+                glow += pulse1 + pulse2 + pulse3;
+
+                vec2 p1 = center + dirUp * clamp(dot(mouseUV - center, dirUp), 0.0, 5.0);
+                vec2 p2 = center + dirRight * clamp(dot(mouseUV - center, dirRight), 0.0, 5.0);
+                vec2 p3 = center + dirDownLeft * clamp(dot(mouseUV - center, dirDownLeft), 0.0, 5.0);
+                
+                float lgt1 = lightning(uv, p1, mouseUV, u_time);
+                float lgt2 = lightning(uv, p2, mouseUV, u_time + 10.0);
+                float lgt3 = lightning(uv, p3, mouseUV, u_time + 20.0);
+                
+                float flicker = step(0.1, noise(u_time * 60.0)) * (noise(u_time * 150.0) * 0.8 + 0.2);
+                
+                float d1 = length(mouseUV - p1);
+                float d2 = length(mouseUV - p2);
+                float d3 = length(mouseUV - p3);
+                
+                glow += lgt1 * smoothstep(2.0, 0.0, d1) * u_mouseActive * flicker;
+                glow += lgt2 * smoothstep(2.0, 0.0, d2) * u_mouseActive * flicker;
+                glow += lgt3 * smoothstep(2.0, 0.0, d3) * u_mouseActive * flicker;
+
+                float distToCenter = length(uv - center);
+                glow += 0.04 / (distToCenter + 0.01);
+
+                vec3 baseColor = vec3(0.6, 0.75, 1.0);
+                vec3 finalColor = baseColor * glow;
+
+                finalColor *= 0.85 + 0.15 * sin(u_time * 2.0 - distToCenter * 8.0);
+
+                float vignette = 1.0 - smoothstep(0.4, 2.0, length(uv));
+                finalColor *= vignette;
+
+                float n = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453);
+                finalColor += n * 0.02;
+
+                gl_FragColor = vec4(finalColor, 1.0);
+            }
+        `;
+
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) return null;
+            return shader;
+        }
+
+        const shaderProgram = gl.createProgram();
+        gl.attachShader(shaderProgram, createShader(gl, gl.VERTEX_SHADER, vsSource));
+        gl.attachShader(shaderProgram, createShader(gl, gl.FRAGMENT_SHADER, fsSource));
+        gl.linkProgram(shaderProgram);
+
+        const programInfo = {
+            program: shaderProgram,
+            attribLocations: { vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition') },
+            uniformLocations: {
+                resolution: gl.getUniformLocation(shaderProgram, 'u_resolution'),
+                time: gl.getUniformLocation(shaderProgram, 'u_time'),
+                mouse: gl.getUniformLocation(shaderProgram, 'u_mouse'),
+                mouseActive: gl.getUniformLocation(shaderProgram, 'u_mouseActive'),
+            },
+        };
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, -1.0]), gl.STATIC_DRAW);
+
+        let startTime = Date.now();
+
+        function render() {
+            if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.useProgram(programInfo.program);
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.vertexAttribPointer(programInfo.attribLocations.vertexPosition, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+
+            let timeSinceMove = Date.now() - lastMouseMove;
+            let targetActive = timeSinceMove < 150 ? 1.0 : Math.max(0.0, 1.0 - (timeSinceMove - 150) / 350.0);
+            currentMouseActive += (targetActive - currentMouseActive) * 0.15;
+
+            gl.uniform2f(programInfo.uniformLocations.resolution, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(programInfo.uniformLocations.time, (Date.now() - startTime) * 0.001);
+            gl.uniform2f(programInfo.uniformLocations.mouse, mouseX, mouseY);
+            gl.uniform1f(programInfo.uniformLocations.mouseActive, currentMouseActive);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>

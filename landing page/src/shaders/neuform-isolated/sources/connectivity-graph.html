@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Connectivity Nexus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body class="font-sans antialiased text-blue-950 min-h-screen flex flex-col" style="background: linear-gradient(180deg, rgba(240,244,248,0.92) 0%, rgba(225,234,244,0.92) 40%, rgba(196,217,239,0.92) 80%, rgba(166,200,234,0.92) 100%), url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/e534354d-c5f2-4399-a1d9-2f50338e8c47_1600w.jpg') center/cover no-repeat fixed; background-blend-mode: normal;">
+
+    <!-- Main Structural Container -->
+    <div class="max-w-6xl mx-auto w-full flex-grow flex flex-col border-x border-transparent relative bg-white/20 backdrop-blur-[2px]" style="border-image: linear-gradient(to bottom, rgba(147,197,253,0.1), rgba(147,197,253,0.7), rgba(147,197,253,0.1)) 1;">
+        
+        <!-- Top Corner Squares -->
+        <div class="absolute -top-[3px] -left-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+        <div class="absolute -top-[3px] -right-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+
+        <!-- Header Section -->
+        <header class="pt-24 pb-20 px-6 text-center border-b border-transparent relative z-10" style="border-image: linear-gradient(to right, rgba(147,197,253,0.1), rgba(147,197,253,0.7), rgba(147,197,253,0.1)) 1;">
+            <h1 id="reveal-title" class="text-5xl md:text-6xl font-normal tracking-tight text-blue-950 max-w-3xl mx-auto leading-tight">
+                The nexus of <br> global connectivity
+            </h1>
+            
+            <!-- Header Bottom Corner Squares -->
+            <div class="absolute -bottom-[3px] -left-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+            <div class="absolute -bottom-[3px] -right-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+        </header>
+
+        <!-- Stats Section -->
+        <section class="border-b border-transparent relative z-10 bg-white/10" style="border-image: linear-gradient(to right, rgba(147,197,253,0.1), rgba(147,197,253,0.7), rgba(147,197,253,0.1)) 1;">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-blue-300/40 text-center">
+                
+                <div class="flex flex-col items-center justify-center space-y-3 py-14 px-6 relative">
+                    <div class="text-4xl font-normal text-blue-950 tracking-tight">150+</div>
+                    <div class="text-sm text-blue-800/70 max-w-[160px] leading-relaxed">
+                        countries integrated worldwide
+                    </div>
+                    <!-- Internal Grid Intersection Square -->
+                    <div class="hidden lg:block absolute -bottom-[3px] -right-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center space-y-3 py-14 px-6 relative">
+                    <div class="text-4xl font-normal text-blue-800/90 tracking-tight">
+                        <span class="text-blue-500/80 font-light mr-1">$</span>3.1T
+                    </div>
+                    <div class="text-sm text-blue-800/70 max-w-[160px] leading-relaxed">
+                        annual transfer volume
+                    </div>
+                    <!-- Internal Grid Intersection Square -->
+                    <div class="hidden lg:block absolute -bottom-[3px] -right-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center space-y-3 py-14 px-6 relative">
+                    <div class="text-4xl font-normal text-blue-800/80 tracking-tight">99.999%</div>
+                    <div class="text-sm text-blue-800/70 max-w-[160px] leading-relaxed">
+                        infrastructure reliability
+                    </div>
+                    <!-- Internal Grid Intersection Square -->
+                    <div class="hidden lg:block absolute -bottom-[3px] -right-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+                </div>
+
+                <div class="flex flex-col items-center justify-center space-y-3 py-14 px-6">
+                    <div class="text-4xl font-normal text-blue-700/80 tracking-tight">850M+</div>
+                    <div class="text-sm text-blue-800/70 max-w-[160px] leading-relaxed">
+                        verified digital identities
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- Stats Bottom Corner Squares -->
+            <div class="absolute -bottom-[3px] -left-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+            <div class="absolute -bottom-[3px] -right-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+        </section>
+
+        <!-- Animation Section -->
+        <main class="flex-grow relative overflow-hidden min-h-[500px]">
+            
+            <!-- Controls -->
+            <div class="absolute top-6 right-6 flex gap-2 z-20">
+                <button id="pauseBtn" class="w-8 h-8 flex items-center justify-center bg-white/40 hover:bg-white/60 backdrop-blur-md border border-blue-300/40 rounded text-blue-800 transition-all cursor-pointer" aria-label="Pause animation">
+                    <iconify-icon icon="solar:pause-linear" width="16" height="16" style="stroke-width: 1.5;"></iconify-icon>
+                </button>
+                <button class="w-8 h-8 flex items-center justify-center bg-white/40 hover:bg-white/60 backdrop-blur-md border border-blue-300/40 rounded text-blue-800 transition-all cursor-pointer" aria-label="Settings">
+                    <iconify-icon icon="solar:settings-linear" width="16" height="16" style="stroke-width: 1.5;"></iconify-icon>
+                </button>
+            </div>
+
+            <!-- Canvas Container -->
+            <canvas id="networkCanvas" class="absolute inset-0 w-full h-full block z-0"></canvas>
+            
+            <!-- Bottom Corner Squares -->
+            <div class="absolute -bottom-[3px] -left-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+            <div class="absolute -bottom-[3px] -right-[3px] w-1.5 h-1.5 bg-blue-400/70 z-20"></div>
+        </main>
+    </div>
+
+    <script>
+        // Background Canvas Animation
+        const canvas = document.getElementById('networkCanvas');
+        const ctx = canvas.getContext('2d', { alpha: true });
+        let width, height;
+        let particles = [];
+        let isPlaying = true;
+        let animationFrameId;
+
+        function resize() {
+            width = canvas.clientWidth;
+            height = canvas.clientHeight;
+            canvas.width = width * window.devicePixelRatio;
+            canvas.height = height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            initParticles();
+        }
+
+        class Particle {
+            constructor() {
+                this.reset(true);
+            }
+
+            reset(initial = false) {
+                this.angle = Math.PI + (Math.random() * Math.PI); 
+                if (Math.random() > 0.3) {
+                    this.angle = Math.PI * 1.25 + (Math.random() * Math.PI * 0.5);
+                }
+
+                this.speed = 0.5 + Math.random() * 2.5;
+                this.distance = initial ? Math.random() * (height * 1.2) : Math.random() * 50;
+                this.maxLength = 20 + Math.random() * 180;
+                this.length = 0;
+                this.alpha = 0;
+            }
+
+            update() {
+                this.distance += this.speed;
+                this.length = Math.min(this.maxLength, this.distance * 0.8);
+                
+                const normalizedDist = this.distance / (height * 1.2);
+                this.alpha = Math.min(1, this.distance / 100) * Math.max(0, 1 - normalizedDist);
+
+                if (this.distance > height * 1.5) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                const originX = width / 2;
+                const originY = height + 50;
+
+                const startX = originX + Math.cos(this.angle) * this.distance;
+                const startY = originY + Math.sin(this.angle) * this.distance;
+                const endX = originX + Math.cos(this.angle) * (this.distance + this.length);
+                const endY = originY + Math.sin(this.angle) * (this.distance + this.length);
+
+                const distRatio = Math.min(1, this.distance / height);
+                const hue = 220 + (distRatio * 15);
+                const lightness = 15 + (distRatio * 35);
+                
+                const color = `hsla(${hue}, 90%, ${lightness}%, ${this.alpha})`;
+                const tailColor = `hsla(${hue}, 90%, ${Math.max(5, lightness - 15)}%, ${this.alpha * 0.05})`;
+
+                ctx.beginPath();
+                const gradient = ctx.createLinearGradient(startX, startY, endX, endY);
+                gradient.addColorStop(0, tailColor);
+                gradient.addColorStop(1, color);
+                
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 0.5 + (distRatio * 2);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(endX, endY, 0.5 + (distRatio * 1.5), 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${hue}, 100%, ${lightness + 20}%, ${this.alpha * 1.5})`;
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const particleCount = window.innerWidth < 768 ? 150 : 400;
+            for(let i=0; i<particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            if (!isPlaying) return;
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            animationFrameId = requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            cancelAnimationFrame(animationFrameId);
+            resize();
+            if(isPlaying) animate();
+        });
+
+        resize();
+        animate();
+
+        const pauseBtn = document.getElementById('pauseBtn');
+        pauseBtn.addEventListener('click', () => {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                pauseBtn.innerHTML = '<iconify-icon icon="solar:pause-linear" width="16" height="16" style="stroke-width: 1.5;"></iconify-icon>';
+                animate();
+            } else {
+                pauseBtn.innerHTML = '<iconify-icon icon="solar:play-linear" width="16" height="16" style="stroke-width: 1.5;"></iconify-icon>';
+                cancelAnimationFrame(animationFrameId);
+            }
+        });
+
+        // GSAP Masked Text Reveal
+        document.addEventListener("DOMContentLoaded", (event) => {
+            gsap.registerPlugin(ScrollTrigger);
+            
+            const titleEl = document.getElementById('reveal-title');
+            if (titleEl) {
+                const lines = titleEl.innerHTML.split(/<br\s*\/?>/i);
+                titleEl.innerHTML = '';
+                
+                lines.forEach((line, index) => {
+                    const words = line.split(' ');
+                    words.forEach((word) => {
+                        if (word.trim() !== '') {
+                            const wrapper = document.createElement('span');
+                            wrapper.className = 'inline-block overflow-hidden align-bottom';
+                            wrapper.style.paddingBottom = '0.1em'; 
+                            wrapper.style.marginBottom = '-0.1em';
+                            
+                            const inner = document.createElement('span');
+                            inner.className = 'inline-block reveal-text';
+                            inner.style.transform = 'translateY(110%)';
+                            inner.innerHTML = word;
+                            
+                            wrapper.appendChild(inner);
+                            titleEl.appendChild(wrapper);
+                            titleEl.appendChild(document.createTextNode(' '));
+                        }
+                    });
+                    if (index < lines.length - 1) {
+                        titleEl.appendChild(document.createElement('br'));
+                    }
+                });
+
+                gsap.to('.reveal-text', {
+                    y: 0,
+                    ease: 'power4.out',
+                    duration: 1.2,
+                    stagger: 0.08,
+                    scrollTrigger: {
+                        trigger: '#reveal-title',
+                        start: 'top 90%',
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

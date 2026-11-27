@@ -1,0 +1,249 @@
+@import "tailwindcss";
+
+@theme {
+  --color-void: #05060a;
+  --color-carbon: #080a10;
+  --color-panel: #0a0d14;
+  --color-panel-2: #0e121b;
+  --color-line: #1b2130;
+  --color-line-bright: #2b3446;
+  --color-gold: #f2c46b;
+  --color-gold-bright: #ffe6ae;
+  --color-gold-dim: #8a7038;
+  --color-cyan: #5be9e0;
+  --color-mint: #57e0a0;
+  --color-rose: #ff7d88;
+  --color-violet: #a79bff;
+  --color-ink: #e8ecf5;
+  --color-muted: #7c879e;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", "Menlo", "Consolas", monospace;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-void);
+  background-image:
+    radial-gradient(ellipse 90% 60% at 50% -10%, rgba(242, 196, 107, 0.09), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 100% 0%, rgba(91, 233, 224, 0.05), transparent 65%),
+    linear-gradient(180deg, #05060a 0%, #05060a 100%);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(242, 196, 107, 0.28);
+  color: #fff7e3;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3243 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2a3243;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@layer utilities {
+  .panel {
+    position: relative;
+    border: 1px solid rgba(43, 52, 70, 0.7);
+    background:
+      linear-gradient(160deg, rgba(18, 22, 32, 0.92) 0%, rgba(8, 10, 16, 0.96) 55%, rgba(6, 8, 13, 0.98) 100%);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.03) inset,
+      0 24px 60px -30px rgba(0, 0, 0, 0.9);
+  }
+
+  .panel-gold {
+    border-color: rgba(242, 196, 107, 0.28);
+    box-shadow:
+      0 0 0 1px rgba(242, 196, 107, 0.05) inset,
+      0 30px 80px -40px rgba(242, 196, 107, 0.35);
+  }
+
+  .hairline {
+    border-color: rgba(43, 52, 70, 0.7);
+  }
+
+  .grid-backdrop {
+    background-image:
+      linear-gradient(rgba(43, 52, 70, 0.35) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(43, 52, 70, 0.35) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, black 10%, transparent 75%);
+  }
+
+  .noise {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
+  }
+
+  .text-glow-gold {
+    text-shadow: 0 0 18px rgba(242, 196, 107, 0.45);
+  }
+
+  /**
+   * Host frame for the registered ThreeUI scene.
+   * The canonical document is streamed into a sandboxed iframe by the
+   * component itself; this frame only gives it a sized, black stage.
+   */
+  .shader-frame {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    background: #000;
+    contain: paint;
+  }
+
+  .shader-frame > iframe {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  /* Keep the authentic click-to-pulse interaction on the dedicated stage. */
+  .shader-frame {
+    pointer-events: auto;
+  }
+
+  .text-glow-cyan {
+    text-shadow: 0 0 16px rgba(91, 233, 224, 0.4);
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    line-height: 1.2;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: ticker 58s linear infinite;
+  }
+
+  .ticker-mask:hover .ticker-track {
+    animation-play-state: paused;
+  }
+
+  .animate-blink {
+    animation: blink 1.6s steps(1, end) infinite;
+  }
+
+  .animate-scan {
+    animation: scan 7s linear infinite;
+  }
+
+  .animate-float-slow {
+    animation: floatSlow 9s ease-in-out infinite;
+  }
+
+  .animate-rise {
+    animation: rise 0.35s ease-out both;
+  }
+
+  .animate-pulse-soft {
+    animation: pulseSoft 2.8s ease-in-out infinite;
+  }
+}
+
+@keyframes ticker {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0.25;
+  }
+}
+
+@keyframes scan {
+  0% {
+    transform: translateY(-10%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  85% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(560%);
+    opacity: 0;
+  }
+}
+
+@keyframes floatSlow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseSoft {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track,
+  .animate-scan,
+  .animate-float-slow,
+  .animate-pulse-soft,
+  .animate-blink {
+    animation: none !important;
+  }
+}

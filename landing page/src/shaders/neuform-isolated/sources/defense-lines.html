@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Defenses</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&family=Plus+Jakarta+Sans:wght@300;400&display=swap" rel="stylesheet">
+</head>
+<body class="bg-[#030303] min-h-screen flex flex-col items-center justify-center overflow-hidden text-white relative antialiased selection:bg-red-500/30" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+    
+    <!-- Canvas for background line animation -->
+    <canvas id="bg-canvas" class="absolute inset-0 z-0 opacity-50 pointer-events-none"></canvas>
+
+    <!-- Ambient background glow -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] w-[800px] h-[500px] bg-red-600/10 rounded-full blur-[150px] pointer-events-none z-0"></div>
+
+    <main class="relative z-10 flex flex-col items-center justify-center w-full min-h-screen max-w-7xl mx-auto px-4 sm:px-6">
+        
+        <!-- 3D Card Carousel -->
+        <div class="relative flex items-center justify-center w-full h-[400px] sm:h-[650px]" style="perspective: 1200px;">
+            <div id="carousel" class="relative w-full h-full flex items-center justify-center" style="transform-style: preserve-3d;">
+                
+                <!-- Left Cards -->
+                <div class="card absolute w-32 sm:w-64 h-[230px] sm:h-[422px] rounded-xl z-0 bg-gradient-to-r from-[#0a0202] to-[#1f0505] border border-red-900/10 cursor-pointer pointer-events-auto" style="transform: translateX(-180%) translateZ(-400px) rotateY(35deg); opacity: 0.15; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);"></div>
+                <div class="card absolute w-32 sm:w-64 h-[230px] sm:h-[422px] rounded-xl z-10 bg-gradient-to-r from-[#140303] to-[#3d0a0a] border border-red-900/20 cursor-pointer pointer-events-auto" style="transform: translateX(-120%) translateZ(-250px) rotateY(25deg); opacity: 0.4; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);"></div>
+                <div class="card absolute w-32 sm:w-64 h-[230px] sm:h-[422px] rounded-xl z-20 bg-gradient-to-r from-[#290606] to-[#6b1111] border border-red-700/30 cursor-pointer pointer-events-auto" style="transform: translateX(-60%) translateZ(-100px) rotateY(15deg); opacity: 0.7; box-shadow: inset 0 0 20px rgba(0,0,0,0.3);"></div>
+
+                <!-- Right Cards -->
+                <div class="card absolute w-32 sm:w-64 h-[230px] sm:h-[422px] rounded-xl z-0 bg-gradient-to-l from-[#0a0202] to-[#1f0505] border border-red-900/10 cursor-pointer pointer-events-auto" style="transform: translateX(180%) translateZ(-400px) rotateY(-35deg); opacity: 0.15; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);"></div>
+                <div class="card absolute w-32 sm:w-64 h-[230px] sm:h-[422px] rounded-xl z-10 bg-gradient-to-l from-[#140303] to-[#3d0a0a] border border-red-900/20 cursor-pointer pointer-events-auto" style="transform: translateX(120%) translateZ(-250px) rotateY(-25deg); opacity: 0.4; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);"></div>
+                <div class="card absolute w-32 sm:w-64 h-[230px] sm:h-[422px] rounded-xl z-20 bg-gradient-to-l from-[#290606] to-[#6b1111] border border-red-700/30 cursor-pointer pointer-events-auto" style="transform: translateX(60%) translateZ(-100px) rotateY(-15deg); opacity: 0.7; box-shadow: inset 0 0 20px rgba(0,0,0,0.3);"></div>
+
+                <!-- Center Active Card -->
+                <div class="card absolute w-36 sm:w-72 h-[269px] sm:h-[461px] bg-gradient-to-br from-[#ff4747] to-[#cc0000] rounded-xl flex items-center justify-center z-30 border border-red-300/40 overflow-hidden cursor-pointer pointer-events-auto" style="transform: translateZ(50px); box-shadow: 0 0 80px 15px rgba(220, 38, 38, 0.35), inset 0 0 30px rgba(255,255,255,0.15);">
+                    <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/fa51902b-c2a4-4c33-a96e-a8f1ef67edc6_1600w.jpg" class="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-multiply pointer-events-none" alt="Abstract Pattern">
+                    <div class="relative flex w-full h-full pointer-events-none" style="background-image: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 70%), repeating-linear-gradient(-45deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 2px, transparent 2px, transparent 12px);">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typography Section (Overlayed) -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none z-40" id="hero-text">
+            
+            <!-- Monospaced Technical Badge -->
+            <div id="hero-badge" class="opacity-0 flex items-center gap-3 px-4 py-2 rounded-full bg-[#1a0505]/80 backdrop-blur-md text-red-400 text-xs font-light tracking-widest uppercase mb-8" style="font-family: 'DM Mono', monospace; box-shadow: 0 0 20px rgba(220,38,38,0.15); border: 1px solid transparent; background-clip: padding-box, border-box; background-origin: padding-box, border-box; background-image: linear-gradient(#1a0505, #1a0505), linear-gradient(to right, rgba(153,27,27,0.6), rgba(239,68,68,0.3));">
+                <iconify-icon icon="solar:radar-linear" width="16" height="16" stroke-width="1.5"></iconify-icon>
+                <span>Continuous Network Surveillance</span>
+            </div>
+            
+            <!-- Elegant Serif Headline -->
+            <h1 class="text-5xl sm:text-7xl md:text-8xl font-light tracking-tight text-[#f5f5f5] leading-none max-w-5xl flex flex-col items-center gap-y-2 sm:gap-y-4" style="font-family: 'Cormorant Garamond', serif; text-shadow: 0 10px 40px rgba(0,0,0,0.9);">
+                <div class="flex flex-wrap justify-center gap-x-3 sm:gap-x-4">
+                    <span class="inline-flex overflow-hidden pb-1 sm:pb-2"><span class="word translate-y-[120%] inline-block">Expose</span></span>
+                    <span class="inline-flex overflow-hidden pb-1 sm:pb-2"><span class="word translate-y-[120%] inline-block">hidden</span></span>
+                    <span class="inline-flex overflow-hidden pb-1 sm:pb-2"><span class="word translate-y-[120%] inline-block">vulnerabilities</span></span>
+                </div>
+                <div class="flex flex-wrap justify-center gap-x-3 sm:gap-x-4 italic text-red-100">
+                    <span class="inline-flex overflow-hidden pb-1 sm:pb-2"><span class="word translate-y-[120%] inline-block">within</span></span>
+                    <span class="inline-flex overflow-hidden pb-1 sm:pb-2"><span class="word translate-y-[120%] inline-block">your</span></span>
+                    <span class="inline-flex overflow-hidden pb-1 sm:pb-2"><span class="word translate-y-[120%] inline-block">cloud</span></span>
+                    <span class="inline-flex overflow-hidden pb-1 sm:pb-2"><span class="word translate-y-[120%] inline-block">infrastructure</span></span>
+                </div>
+            </h1>
+
+            <!-- Clean Sans-Serif CTA -->
+            <button id="hero-button" class="opacity-0 group relative mt-10 sm:mt-14 px-8 py-4 rounded-lg text-sm font-light text-white transition-all active:scale-95 pointer-events-auto flex items-center justify-center bg-red-600 border border-red-500/50 overflow-hidden" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                <span class="absolute inset-0 w-full h-full bg-red-500 transition-all duration-500 ease-out [clip-path:circle(0%_at_50%_50%)] group-hover:[clip-path:circle(150%_at_50%_50%)] z-0"></span>
+                <span class="relative z-10 flex items-center gap-2">
+                    Start Threat Assessment
+                    <iconify-icon icon="solar:arrow-right-linear" width="18" height="18" stroke-width="1.5"></iconify-icon>
+                </span>
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Background Canvas Animation
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function initCanvas() {
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = Math.max(1, Math.floor(width * dpr));
+            canvas.height = Math.max(1, Math.floor(height * dpr));
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.imageSmoothingEnabled = false;
+            particles = [];
+            const particleCount = window.innerWidth < 768 ? 40 : 100;
+            
+            for(let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: Math.random() * width,
+                    y: Math.random() * height,
+                    baseLength: Math.random() * 80 + 20,
+                    speedY: Math.random() * 0.8 + 0.2,
+                    baseOpacity: Math.random() * 0.2 + 0.05
+                });
+            }
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, width, height);
+            const centerX = width / 2;
+            const centerY = height / 2;
+            ctx.lineCap = 'butt';
+            ctx.lineJoin = 'miter';
+            
+            particles.forEach(p => {
+                const distFromCenterX = Math.abs(p.x - centerX);
+                const distFromCenterY = Math.abs(p.y - centerY);
+                
+                const proximityX = Math.max(0, 1 - (distFromCenterX / (width / 2)));
+                const proximityY = Math.max(0, 1 - (distFromCenterY / (height / 2)));
+                const centerProximity = proximityX * (0.4 + proximityY * 0.6);
+                
+                const currentLength = p.baseLength * (1 + centerProximity * 4); 
+                
+                const currentOpacity = Math.min(1.0, p.baseOpacity + (centerProximity * 2.0));
+                const brightness = Math.floor(centerProximity * 180);
+                
+                ctx.beginPath();
+                const grad = ctx.createLinearGradient(p.x, p.y, p.x, p.y + currentLength);
+                grad.addColorStop(0, `rgba(220, 38, 38, 0)`);
+                grad.addColorStop(0.5, `rgba(255, ${38 + brightness}, ${38 + brightness}, ${currentOpacity})`);
+                grad.addColorStop(1, `rgba(220, 38, 38, 0)`);
+                
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 0.5;
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x, p.y + currentLength);
+                ctx.stroke();
+
+                p.y -= p.speedY * 1.5 * (1 + centerProximity * 0.5);
+                
+                if(p.y + currentLength < 0) {
+                    p.y = height;
+                    p.x = Math.random() * width;
+                }
+            });
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // 3D Cards Floating, Mouse Tracking & Hover Animation
+        const carousel = document.getElementById('carousel');
+        const cards = document.querySelectorAll('.card');
+        let time = 0;
+        let targetRotateY = 0;
+        let currentRotateY = 0;
+
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => card.isHovered = true);
+            card.addEventListener('mouseleave', () => card.isHovered = false);
+            card.hoverAmt = 0;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth) - 0.5;
+            targetRotateY = x * 40; 
+        });
+
+        function animateCards() {
+            time += 0.015;
+            currentRotateY += (targetRotateY - currentRotateY) * 0.08;
+            carousel.style.transform = `rotateY(${currentRotateY}deg)`;
+
+            cards.forEach((card, index) => {
+                if(!card.dataset.baseTransform) {
+                    card.dataset.baseTransform = card.style.transform;
+                    const match = card.dataset.baseTransform.match(/translateX\(([^)]+)\)/);
+                    card.directionX = match ? parseFloat(match[1]) : 0;
+                }
+                
+                const targetHover = card.isHovered ? 1 : 0;
+                card.hoverAmt += (targetHover - card.hoverAmt) * 0.15;
+                
+                const hoverZ = card.hoverAmt * 60;
+                const hoverY = card.hoverAmt * -20;
+                let hoverX = 0;
+                
+                if (card.directionX < 0) hoverX = card.hoverAmt * -40;
+                else if (card.directionX > 0) hoverX = card.hoverAmt * 40;
+
+                const offset = Math.sin(time + (index * 0.5)) * 8;
+                
+                card.style.transform = `${card.dataset.baseTransform} translateX(${hoverX}px) translateY(${offset + hoverY}px) translateZ(${hoverZ}px)`;
+            });
+            requestAnimationFrame(animateCards);
+        }
+        animateCards();
+
+        // Entrance Animation with GSAP Masked Reveal
+        gsap.registerPlugin(ScrollTrigger);
+
+        setTimeout(() => {
+            // Animate headline words in a masked stagger
+            gsap.to('.word', {
+                y: "0%",
+                duration: 1.2,
+                stagger: 0.06,
+                ease: "power4.out",
+                scrollTrigger: {
+                    trigger: "#hero-text",
+                    start: "top 90%"
+                }
+            });
+
+            // Fade in and float up the badge and button sequentially
+            gsap.fromTo(['#hero-badge', '#hero-button'], 
+                { opacity: 0, y: 20 },
+                { opacity: 1, y: 0, duration: 1, stagger: 0.3, ease: "power3.out", delay: 0.4 }
+            );
+        }, 150);
+    </script>
+</body>
+</html>
